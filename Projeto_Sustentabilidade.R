@@ -5,11 +5,15 @@ library(ggplot2)
 library(leaflet)
 library(plotly)
 library(dplyr)
-library(scales) # Para a função percent()
+library(scales) 
+library(htmlwidgets)
+library(htmltools)
+
+
 
 # Interface do Usuário (UI)
 ui <- dashboardPage(
-  dashboardHeader(title = "Sustentabilidade Ambiental", titleWidth = 350,
+  dashboardHeader(title = "Projeto Sustentabilidade Ambiental", titleWidth = 390,
                   tags$li(class = "dropdown",
                           a(href = "https://www.facebook.com/detranPARA",
                             class = "fa fa-facebook",
@@ -94,52 +98,120 @@ tabItems(
                                   )
                                 )
                               )), 
-         
-                     
-                     tabPanel("LEGISLAÇÃO VIGENTE",
-                              icon = icon("layer-group"),
-                              fluidRow(
-                                column(
-                                  width = 4,
-                                  position = "center",
-                                  solidHeader = TRUE,
-                                  tags$br(),
-                                  tags$p(
-                                    style = "text-align: justify;font-si20pt",
-                                    strong(
-                                      "A Lei Estadual nº 5.899, de 01/08/1995, considera, no Estado do Pará, a coleta seletiva e a reciclagem de lixo como atividades ecológicas de relevância social e de interesse público."
-                                    )
-                                  ),
-                                  tags$br(),
-                                  tags$p(
-                                    style = "text-align: justify;font-si20pt",
-                                    strong(
-                                      "Lei Ordinária Estadual n° 6.918, 10/10/2006, dispõe sobre a Política Estadual de Reciclagem de Materiais e dá outras providências."
-                                    )
-                                  ),
-                                  tags$br(),
-                                  tags$p(
-                                    style = "text-align: justify;font-si20pt",
-                                    strong(
-                                      "Decreto Estadual nº 801, 15/02/2008, institui a separação de resíduos sólidos recicláveis, na fonte geradora, em todos os órgãos da Administração Estadual."
-                                    )
-                                  ),
-                                  tags$br(),
-                                  tags$p(
-                                    style = "text-align: justify;font-si20pt",
-                                    strong(
-                                      "Lei Estadual n° 9.149, 23/11/2020, dispõe sobre a substituição e recolhimento de sacolas plásticas em estabelecimentos comerciais localizados no Estado do Pará."
+tabPanel("BASE LEGAL",
+         icon = icon("layer-group"),
+         fluidRow(
+           column(
+             width = 4,
+             position = "center",
+             tags$br("LEGISLAÇÃO ESTADUAL"),
+             solidHeader = TRUE,
+             tags$br(),
+             tags$p(
+               style = "text-align: justify;font-si20pt",
+               strong("A Lei Estadual nº 5.899, de 01/08/1995, considera, no Estado do Pará, a coleta seletiva e a reciclagem de lixo como atividades ecológicas de relevância social e de interesse público.")),
+             tags$br(),
+             tags$p(
+               style = "text-align: justify;font-si20pt",
+               strong("A Lei Ordinária Estadual n° 6.918, 10/10/2006, dispõe sobre a Política Estadual de Reciclagem de Materiais e dá outras providências."
+                )),
+             tags$br(),
+             tags$p(
+               style = "text-align: justify;font-si20pt",
+               strong("O Decreto Estadual nº 801, 15/02/2008, institui a separação de resíduos sólidos recicláveis, na fonte geradora, em todos os órgãos da Administração Estadual."
+                  )),
+             tags$br(),
+             tags$p(
+               style = "text-align: justify;font-si20pt",
+               strong("A Lei Estadual n° 9.149, 23/11/2020, dispõe sobre a substituição e recolhimento de sacolas plásticas em estabelecimentos comerciais localizados no Estado do Pará."
                                     )
                                   )
-                                )
-                              )),
-                     tabPanel("SOFTWARE'S", icon=icon("computer"),
-                              fluidRow(
-                                column(width=4,
-                                       position="center",solidHeader = TRUE,
-                                       tags$br(),
-                                       tags$p(style="text-align: justify;font-si20pt",
-                                              strong("Para Criação do Anuário em Formato Web com Dasboard Interativos, foi Desenvolvido um script em Linguagem de Programação R-PROJECT Versão 4.2.2, no formato de Projeto de Software Livre de Código Aberto (open source), ou seja, pode ser utilizado sem custos de licença (R DEVELOPMENT CORE TEAM, 2022)")),
+                                ),
+           column(
+               width = 4,
+               position = "center",
+               tags$br("OBJETIVOS DESENVOLVIMENTO SUSTENTÁVEL"),
+               solidHeader = TRUE,
+               tags$br(),
+               tags$p(
+                 style = "text-align: justify;font-si20pt",
+                 strong("O Programa de Sustentabilidade Ambiental do DETRAN-PA está pautado nos 17 Objetivos de Desenvolvimento Sustentável da ONU, chamado ODS , no qual é considerado um apelo global para acabar com a pobreza, proteger o meio ambiente e o clima. Sendo alinhado principalmente nos Objetivos 11 e 12."
+                 )
+               ),
+               tags$p(
+                 style = "text-align: justify;font-si20pt",
+                 strong("Objetivo 11.6: Até 2030, reduzir o impacto ambiental negativo per capita das cidades, inclusive prestando especial atenção à qualidade do ar, gestão de resíduos municipais e outros;")),
+               tags$br(),
+               tags$p(
+                 style = "text-align: justify;font-si20pt",
+                 strong("Objetivo 12.5: Até 2030, reduzir substancialmente a geração de resíduos por meio da prevenção, redução, reciclagem e reuso;"
+                 )),
+               tags$br(),
+               tags$p(
+                 style = "text-align: justify;font-si20pt",
+                 strong("Objetivo 12.7: Promover práticas de compras públicas sustentáveis, de acordo com as políticas e prioridades nacionais;"
+                 )),
+               tags$br(),
+               tags$p(
+                 style = "text-align: justify;font-si20pt",
+                 strong("Objetivo 12.8:  Até 2030, garantir que as pessoas, em todos os lugares, tenham informação relevante e conscientização para o desenvolvimento sustentável e estilos de vida em harmonia com a natureza;"
+                 )
+               )
+           )
+        )),
+tabPanel("MATERIAL E MÉTODOS", 
+         icon=icon("book"),
+         fluidRow(
+           column(width = 4, 
+                  position = "center",
+                  tags$br("OBJETIVO GERAL"),
+                  tags$br(),
+                  tags$p(
+                    style = "text-align:justify;font-si20pt",
+                    strong(
+                      "Implantar o Projeto de Sustentabilidade Ambiental nas Agências Regionais do DETRAN-PA, cujo enfoque é proporcionar informação e treinamento sobre o uso racional e sustentável dos recursos, descarte adequado de material inservível e que possa ser reciclado."
+                    )
+                  ),
+                  tags$br(),
+                  tags$br("OBJETIVOS ESPECÍFICOS"),
+                  tags$p(style = "text-align:justify;font-si20pt",
+                         strong(" ")),
+                  tags$p(style = "text-align:justify;font-si20pt",
+                         strong("1) Treinamento e Capacitação para todos os servidores das Ciretrans, sobre a importância da cultura de preservação do meio ambiente;")),
+                  tags$p(style = "text-align: justify;font-si20pt",
+                         strong("2) Análise e Compreensão das Ciretrans tipo A, que mais geram resíduos que possam ser reciclados;")),
+                  tags$p(style = "text-align: justify;font-si20pt",
+                         strong("3) Sensibilizar os servidores e usuários para que adotem estas práticas em suas casas, locais de lazer e outros locais de trabalho;")),
+                  tags$p(style = "text-align: justify;font-si20pt",
+                         strong("4) Colaborar com possíveis estudos acadêmicos sobre o descarte consciente de resíduos, políticas de reciclagem e responsabilidade socioambiental.")),
+                  tags$p(style = "text-align: justify;font-si20pt")
+
+           ),
+
+          column(
+            width = 4,
+            position = "center",
+            tags$br("QUESTIONÁRIO"),
+            tags$br(),
+            tags$p(
+              style = "text-align:justify;font-si20pt",
+              strong(
+                "Para a coleta dos dados foi utilizado um instrumento semiestruturado composto por 21 itens que versam sobre sustentabilidade ambiental. A estrutura do questionário contém três subescalas, que medem características socioeconômicas, coleta seletiva e destino do lixo."
+              )
+            ),
+          )
+         )
+),
+
+tabPanel("RECURSO COMPUTACIONAL", icon=icon("computer"),
+         fluidRow(
+           column(width=4,
+                  position="center",
+                  solidHeader = TRUE,
+                  tags$br(),
+                  tags$p(style="text-align: justify;font-si20pt",
+                         strong(
+"Para Criação do Painel em Formato Web com Dasboard Interativos, foi Desenvolvido um script em Linguagem de Programação R-PROJECT Versão 4.4.1, no formato de Projeto de Software Livre de Código Aberto (open source), ou seja, pode ser utilizado sem custos de licença (R DEVELOPMENT CORE TEAM, 2024)")),
                                        tags$br(),
                                        tags$img(
                                          id="foto2",
@@ -169,73 +241,10 @@ tabItems(
                                 )
                               )
                      ),
-                     tabPanel("MATERIAL E MÉTODOS", 
-                              icon=icon("book"),
-                              fluidRow(
-                                column(width = 4, 
-                                       position = "center",
-                                       tags$br(),
-                                       tags$br("Metodologia"),
-                                       tags$br(),
-                                       tags$p(
-                                         style = "text-align:justify;font-si20pt",
-                                         strong(
-                                           "A Metodologia Adotada para o Planejamento e execução do Projeto foi apoiada na Estratégia de Proatividade e Parceria Desenvolvida pela GRSP (CARDITA e DI PIETRO, 2010)."
-                                         )
-                                       ),
-                                       tags$br(),
-                                       tags$p(
-                                         style = "text-align:justify;font-si20pt",
-                                         strong(
-                                           "A Estratégia de Proatividade e Parceria (EPP) consiste em um Modelo Desenvolvido para Tratar das questões de Segurança no Trânsito."
-                                         )
-                                       ),
-                                       tags$br(),
-                                       tags$p(style = "text-align:justify;font-si20pt",
-                                              strong(" As Etapas a Serem Desenvolvidas Durante Aplicação do Projeto são:")),
-                                       tags$br(),
-                                       tags$p(style = "text-align:justify;font-si20pt",
-                                              strong("1) Articulação Intersetorial e Formação")),
-                                       tags$p(style = "text-align: justify;font-si20pt",
-                                              strong("2) Qualificação, Integração e Análise de Dados")),
-                                       tags$p(style = "text-align: justify;font-si20pt",
-                                              strong("3) Ações Integradas de Segurança no Trânsito")),
-                                       tags$p(style = "text-align: justify;font-si20pt",
-                                              strong("4) Monitoramento, Avaliação de Desenpenhp e Reconhecimento")),
-                                       tags$p(style = "text-align: justify;font-si20pt",
-                                              strong("5) Revisão Geral Anual")),
-                                       tags$p(style = "text-align: justify;font-si20pt",
-                                              strong("6) Renovação e Expansão"))
-                                ),
-                                tags$br(),
-                                column(
-                                  width = 4,
-                                  position = "center",
-                                  tags$br("Pareamento"),
-                                  tags$br(),
-                                  tags$p(
-                                    style = "text-align:justify;font-si20pt",
-                                    strong(
-                                      "Para o Relacionamento das Múltiplas Bases de Dados(pareamento), utilizou-se o Método Probabilístico de Relacionamento de Registro desenvolvido por Fellegi e Sunter (1969)."
-                                    )
-                                  ),
-                                  tags$br(),
-                                  tags$p(
-                                    style = "text-align:justify;font-si20pt",
-                                    strong(
-                                      "A principal dificuldade do pareamento é a não existência de um identificador único que permita vincular um Boletim de Ocorrência à uma Autorização de Internação Hospitalar ou Declaração de Òbito."
-                                    )
-                                  ),
-                                  tags$br(),
-                                  tags$p(
-                                    style = "text-align:justify;font-si20pt",
-                                    strong(
-                                      "O Processo de Padronização de Variáveis, utilizando o Método Probabilístico, foi realizado para homogeneizar as variáveis das diferentes bases de dados, visando minimizar erros no processo de pareamento, com a alocação de registros da mesma vítima num bloco lógico para evitar: erros fonéticos, perda de informação, etc."
-                                    )
-                                  )
-                                )
-                              )
-                     ),
+              
+
+
+
                      tabPanel(
                        "CRÉDITOS",
                        icon = icon("phone"),
@@ -247,7 +256,7 @@ tabItems(
                            tags$br(),
                            tags$p(
                              style = "text-align: justify;font-si20pt",
-                             strong("DEPARTAMENTO DE TRÂNSITO DO ESTADO DO PARÁ - DETRAN/PA")
+                             strong("DEPARTAMENTO DE TRÂNSITO DO ESTADO DO PARÁ")
                            ),
                            tags$p(style = "text-align: justify;font-si20pt",
                                   strong("RENATA MIRELA COELHO")),
@@ -262,14 +271,14 @@ tabItems(
                            tags$p(
                              style = "text-align: justify;font-si20pt",
                              strong(
-                               "Esta publicação deve ser citada como: Departamento de Trânsito do Estado do Pará (DETRAN-PA), Anuário Estatístico de Acidentes de Trânsito, 2023 (LC/PUB.2023/1-P), Belém, 2023."
+                               "Esta publicação deve ser citada como: Departamento de Trânsito do Estado do Pará (DETRAN-PA), Programa de Sustentatabilidade Ambiental Por Todo Pará, 2024 (LC/PUB.2024/1-P), Belém, 2024."
                              )
                            ),
                            tags$br(),
                            tags$p(
                              style = "text-align: justify;font-si20pt",
                              strong(
-                               "A autorização para a reprodução total ou parcial deste trabalho deve ser solicitada ao Departamento de Trânsito do Estado do Pará, Gerência de Análise e Estatística de Trânsito, gerest@detran.pa.gov.br. Os Estados membros das Nações Unidas e suas instituições governamentais podem reproduzir este trabalho sem autorização prévia. Solicita-se apenas que mencionem a fonte e informem ao DETRAN-PA de tal reprodução."
+                               "A autorização para a reprodução total ou parcial deste trabalho deve ser solicitada ao Departamento de Trânsito do Estado do Pará, Gerência de Treinamento, getren@detran.pa.gov.br. Os Estados membros das Nações Unidas e suas instituições governamentais podem reproduzir este trabalho sem autorização prévia. Solicita-se apenas que mencionem a fonte e informem ao DETRAN-PA de tal reprodução."
                              )
                            ),
                            tags$br(),
@@ -283,7 +292,7 @@ tabItems(
                          )
                        )        
                      ),
-                     tabPanel("SUGESTÕES",
+                     tabPanel("RESPONSÁVEL TÉCNICO",
                               fluidRow(
                                 column(
                                   width = 4,
@@ -292,12 +301,11 @@ tabItems(
                                   tags$p(
                                     style = "text-align: justify;font-si20pt",
                                     strong(
-                                      "Reclamações, sugestões, críticas e elogios relacionados ao Anuário
-Estatístico de Acidentes de Trânsito do DETRAN-PA podem ser registrados na Gerência de Análise Estatística de Trânsito, por intermédio do "
+                                      "Reclamações, sugestões, críticas e elogios relacionados ao Projeto de Sustentabilidade Ambiental Por Todo o Pará do DETRAN-PA podem ser registrados na Gerência de Treinamento, por intermédio do Responsável Técnico e mentor intelectual, Sr: "
                                     )
                                   ),
-                                  tags$a("estatisticadetransito@detran.pa.gov.br",
-                                         href = "gerest@detran.pa.gov.br"),
+                                  tags$a("Cristovão Simões da Mota (Atropólogo)",
+                                         href = "cristovao.simoes@detran.pa.gov.br"),
                                 )
                               ))
               )
@@ -359,6 +367,38 @@ Estatístico de Acidentes de Trânsito do DETRAN-PA podem ser registrados na Ger
 
 # Server
 server <- function(input, output, session) {
+  
+  detran_location <- data.frame(
+    lat = -1.37843,
+    lon = -48.44034
+  )
+  
+  output$mapa <- renderLeaflet({
+    df <- read.csv(textConnection(
+      "Nome, lat, lon,
+      DETRAN-PA, -1.37843, -48.44034" ))
+    leaflet::leaflet(df) %>%
+      addTiles() %>%
+      #addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
+      #addProviderTiles(providers$Esri.WorldStreetMap)%>%
+      addMarkers(~lon, ~lat, label= ~htmlEscape(Nome),
+                 labelOptions = labelOptions(noHide = FALSE,
+                                             textsize = "15px")) %>%
+      addProviderTiles(providers$OpenSeaMap) %>%
+      setView(lng = detran_location$lon,
+              lat = detran_location$lat,
+              zoom = 15)
+  })
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   # Carregar os dados do Excel
   data <- readxl::read_excel("BANCO_PROJETO_SUSTENTABILIDADE.xlsx")
   
