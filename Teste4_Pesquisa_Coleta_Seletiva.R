@@ -145,7 +145,7 @@ shinyApp(
                 )
         )
       )
-    ),
+      ),
     
     footer = dashboardFooter(
       left = HTML("CopyRight <b>&copy; Todos os Direitos Reservados.</b>"), 
@@ -208,7 +208,8 @@ shinyApp(
       sexo_df <- data.frame(Sexo = names(sexo_count), Count = as.numeric(sexo_count))
       plot_ly(sexo_df, x = ~Sexo, y = ~Count, type = 'bar', name = 'Gênero', 
               marker = list(color = 'rgba(55, 128, 191, 0.6)', 
-                            line = list(color = 'rgba(55, 128, 191, 1.0)', width = 2))) %>%
+                            line = list(color = 'rgba(55, 128, 191, 1.0)', width = 2))
+              ) %>%
         layout(title = 'Distribuição por Gênero', xaxis = list(title = 'Gênero'), yaxis = list(title = 'Count'))
     })
     

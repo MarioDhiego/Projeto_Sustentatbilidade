@@ -8,11 +8,13 @@ library(dplyr)
 library(scales) 
 library(htmlwidgets)
 library(htmltools)
+library(likert)
+library(RColorBrewer)
 
 
 
 # Interface do Usuário (UI)
-ui <- dashboardPage(
+ui <- dashboardPage( skin = "green",
   dashboardHeader(title = "Projeto Sustentabilidade Ambiental", titleWidth = 390,
                   tags$li(class = "dropdown",
                           a(href = "https://www.facebook.com/detranPARA",
@@ -43,10 +45,33 @@ ui <- dashboardPage(
                ),
       menuItem("SÓCIO-ECONÔMICO", tabName = "socioeconomico", icon = icon("users")),
       menuItem("COLETA SELETIVA", tabName = "coleta", icon = icon("recycle")),
-      menuItem("CIRETRAN", tabName = "ciretran", icon = icon("car")),
+      menuItem("DESTINO LIXO", tabName = "ciretran", icon = icon("recycle")),
       selectInput("municipio", "MUNICÍPIOS:",
-                  choices = c("Altamira", "Marabá", "Castanhal", "Santarem", "Parauapebas"),
-                  selected = "Altamira")
+                  choices = c("Altamira", 
+                              "Marabá", 
+                              "Castanhal", 
+                              "Santarem", 
+                              "Parauapebas"),
+                  selected = "Altamira"),
+      selectInput("cnh", "POSSUI CNH:",
+                  choices = c("Sim", 
+                              "Não"),
+                  selected = "Sim"),
+      selectInput("destino", "DESTINO LIXO:",
+                   choices = c("Aterro Sanitário", 
+                               "Compostagem",
+                               "Incineração",
+                               "Lixão",
+                               "Reciclagem"),
+                   selected =  "Aterro Sanitário"),
+      # Botão para reiniciar os filtros
+      actionButton("reset_button", "REINICIAR",
+                   style = "background-color: #28a745; 
+                   color: white; 
+                   border-radius: 5px; 
+                   padding: 10px; 
+                   font-size: 12px"),
+      tableOutput("tabela_filtrada")
     )
   ),
   dashboardBody(
@@ -191,6 +216,22 @@ tabPanel("MATERIAL E MÉTODOS",
           column(
             width = 4,
             position = "center",
+            tags$br(),
+            tags$br("ETAPAS OPERACIONAIS"),
+            tags$br(),
+            tags$p(style = "text-align:justify;font-si20pt",
+                   strong("1) Visita Técnica as CIRETRAN'S do Tipo A;")),
+            tags$p(style = "text-align: justify;font-si20pt",
+                   strong("2) Reunião de Alinhamento para apresentação do projeto ao Gerente da CIRETRAN;")),
+            tags$p(style = "text-align: justify;font-si20pt",
+                   strong("3) Aplicação do Questionário de Percepção sobre Sustentabilidade Ambiental;")),
+            tags$p(style = "text-align: justify;font-si20pt",
+                   strong("4) Palestra Sobre o Uso Racional dos Recursos/Descarte Seletivo;")),
+            tags$p(style = "text-align: justify;font-si20pt",
+                   strong("5) Reunião Técnica com a Secretaria Municipal Meio Ambiente;")),
+            tags$p(style = "text-align: justify;font-si20pt",
+                   strong("6) Pesquiva de Levantamento: Cooperativas/Associações de Reciclagem;")),
+            tags$br(),
             tags$br("QUESTIONÁRIO"),
             tags$br(),
             tags$p(
@@ -198,7 +239,7 @@ tabPanel("MATERIAL E MÉTODOS",
               strong(
                 "Para a coleta dos dados foi utilizado um instrumento semiestruturado composto por 21 itens que versam sobre sustentabilidade ambiental. A estrutura do questionário contém três subescalas, que medem características socioeconômicas, coleta seletiva e destino do lixo."
               )
-            ),
+            )
           )
          )
 ),
@@ -241,10 +282,6 @@ tabPanel("RECURSO COMPUTACIONAL", icon=icon("computer"),
                                 )
                               )
                      ),
-              
-
-
-
                      tabPanel(
                        "CRÉDITOS",
                        icon = icon("phone"),
@@ -314,56 +351,114 @@ tabPanel("RECURSO COMPUTACIONAL", icon=icon("computer"),
       
       
 #------------------------------------------------------------------------------#
-      # Aba Socio-Econômico
-      tabItem(tabName = "socioeconomico",
-              fluidRow(
-                box(title = "Distribuição po Gênero", status = "primary", solidHeader = TRUE,
-                    plotlyOutput("sexoPlot", height = 300)),
-                box(title = "Distribuição por Raça/Cor", status = "primary", solidHeader = TRUE,
-                    plotlyOutput("racaPlot", height = 300)),
-                box(title = "Distribuição por Idade", status = "primary", solidHeader = TRUE,
-                    plotlyOutput("idadePlot", height = 300)),
-                box(title = "Distribuição por Grau de Escolaridade", status = "primary", solidHeader = TRUE,
-                    plotlyOutput("escolaridadePlot", height = 300)),
-                box(title = "Distribuição por Estado Civil", status = "primary", solidHeader = TRUE,
-                    plotlyOutput("estadoCivilPlot", height = 300)),
-                box(title = "Distribuição por Cargo/Função", status = "primary", solidHeader = TRUE,
-                    plotlyOutput("cargoPlot", height = 300))
+# Aba Socio-Econômico
+tabItem(tabName = "socioeconomico",
+        fluidRow(
+          box(title = "Distribuição po Gênero", 
+              status = "success", 
+              solidHeader = TRUE,
+              collapsible = TRUE,
+              plotlyOutput("sexoPlot", height = 300)),
+          box(title = "Distribuição por Raça/Cor", 
+              status = "success", 
+              solidHeader = TRUE,
+              collapsible = TRUE,
+              plotlyOutput("racaPlot", height = 300)),
+          box(title = "Distribuição por Idade", 
+              status = "success", 
+              solidHeader = TRUE,
+              collapsible = TRUE,
+              plotlyOutput("idadePlot", height = 300)),
+          box(title = "Distribuição por Grau de Escolaridade", 
+              status = "success", 
+              solidHeader = TRUE,
+              collapsible = TRUE,
+              plotlyOutput("escolaridadePlot", height = 300)),
+          box(title = "Distribuição por Estado Civil", 
+              status = "success", 
+              solidHeader = TRUE,
+              collapsible = TRUE,
+              plotlyOutput("estadoCivilPlot", height = 300)),
+          box(title = "Distribuição por Cargo/Função", 
+              status = "success", 
+              solidHeader = TRUE,
+              collapsible = TRUE,
+              plotlyOutput("cargoPlot", height = 300)),
+                #box(title = "Distribuição por CNH", status = "primary", solidHeader = TRUE,
+                #    plotlyOutput("cnhPlot", height = 300)),
+          box(title = "Distribuição por Meio de Transporte", 
+              status = "success", 
+              solidHeader = TRUE,
+              collapsible = TRUE,
+              plotlyOutput("transportePlot", height = 300))
               )
       ),
       # Aba Coleta Seletiva
       tabItem(tabName = "coleta",
               fluidRow(
-                box(title = "NO SEU BAIRRO TÊM COLETA SELETIVA?", status = "success", solidHeader = TRUE,
-                    plotlyOutput("bairroColetaPlot", height = 300)),
-                box(title = "RECEBEU INFORMES SOBRE COLETA SELETIVA?", status = "success", solidHeader = TRUE,
-                    plotlyOutput("informesPlot", height = 300)),
-                box(title = "COSTUMA SEPARAR O LIXO?", status = "success", solidHeader = TRUE,
-                    plotlyOutput("separarLixoPlot", height = 300)),
-                box(title = "SABE SEPARAR CORRETAMENTE O LIXO?", status = "success", solidHeader = TRUE,
-                    plotlyOutput("separarCorretamentePlot", height = 300))
+          box(title = "NO SEU BAIRRO TÊM COLETA SELETIVA?", 
+              status = "success", 
+              solidHeader = TRUE,
+              collapsible = TRUE,
+              plotlyOutput("bairroColetaPlot", height = 300)),
+          box(title = "RECEBEU INFORMES SOBRE COLETA SELETIVA?", 
+              status = "success", 
+              solidHeader = TRUE,
+              collapsible = TRUE,
+              plotlyOutput("informesPlot", height = 300)),
+          box(title = "COSTUMA SEPARAR O LIXO?", 
+              status = "success", 
+              solidHeader = TRUE,
+              collapsible = TRUE,
+              plotlyOutput("separarLixoPlot", height = 300)),
+          box(title = "SABE SEPARAR CORRETAMENTE O LIXO?", 
+              status = "success", 
+              solidHeader = TRUE,
+              collapsible = TRUE,
+              plotlyOutput("separarCorretamentePlot", height = 300))
               )
       ),
       # Aba CIRETRAN
       tabItem(tabName = "ciretran",
               fluidRow(
-                box(title = "Facilidade de Encontrar Lixeiras", status = "warning", solidHeader = TRUE,
-                    plotlyOutput("lixeiraFacilidadePlot", height = 300)),
-                box(title = "Uso de Garrafa e Caneca", status = "warning", solidHeader = TRUE,
-                    plotlyOutput("usoGarrafaCanecaPlot", height = 300)),
-                box(title = "Lixeiras de Coleta Seletiva", status = "warning", solidHeader = TRUE,
-                    plotlyOutput("lixeiraColetaSeletivaPlot", height = 300)),
-                box(title = "Destino Final do Lixo", status = "warning", solidHeader = TRUE,
-                    plotlyOutput("destinoFinalLixoPlot", height = 300))
+          box(title = "Facilidade de Encontrar Lixeiras", 
+              status = "success", 
+              solidHeader = TRUE,
+              collapsible = TRUE,
+              plotlyOutput("lixeiraFacilidadePlot", height = 300)),
+          box(title = "Uso de Garrafa e Caneca", 
+              status = "success", 
+              solidHeader = TRUE,
+              collapsible = TRUE,
+              plotlyOutput("usoGarrafaCanecaPlot", height = 300)),
+          box(title = "Lixeiras de Coleta Seletiva", 
+              status = "success", 
+              solidHeader = TRUE,
+              collapsible = TRUE,
+              plotlyOutput("lixeiraColetaSeletivaPlot", height = 300)),
+          box(title = "Sabe o Destino Final do Lixo Ciretran", 
+              status = "success", 
+              solidHeader = TRUE,
+              collapsible = TRUE,
+              plotlyOutput("destinoFinalLixoPlot", height = 300))
+          #,
+          #box(title = "VC Sugere o Destino Final do Lixo", 
+          #    status = "warning", 
+          #    solidHeader = TRUE,
+          #    collapsible = TRUE,
+          #    plotlyOutput("sugeredestinoLixoPlot", height = 300))
               )
       )
     ),
-    footer = dashboardFooter(
-      left = tags$b("DETRAN-PA"), 
-      right = tags$b("BELÉM-PA, 2024 v.1")
+ footer = dashboardFooter(
+      left = HTML("CopyRight <b>&copy; Todos os Direitos Reservados.</b>"), 
+      right = tags$b("Belém-PA, 2024 v.1")
     )
-  )
+  
+
 )
+)
+   
 
 # Server
 server <- function(input, output, session) {
@@ -390,47 +485,56 @@ server <- function(input, output, session) {
               zoom = 15)
   })
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  # Carregar os dados do Excel
-  data <- readxl::read_excel("BANCO_PROJETO_SUSTENTABILIDADE.xlsx")
+#------------------------------------------------------------------------------#
+# Carregar os dados do Excel
+data <- readxl::read_excel("BANCO_PROJETO_SUSTENTABILIDADE.xlsx")
   
   # Filtrar dados com base no município selecionado
   filtered_data <- reactive({
-    subset(data, MUNICIPIO == input$municipio)
+    subset(data, MUNICIPIO == input$municipio & CNH == input$cnh & P21 == input$destino)
   })
+ 
   
-  # Função para criar gráficos de barras com percentuais
-  plot_with_percent <- function(data, x_var, fill_var, title) {
+  # Função para criar o gráfico com porcentagens e ordenação
+  plot_with_percent <- function(data, x_var, fill_var, title, order = "asc") {
+    # Reordenando os níveis da variável categórica
+    data[[x_var]] <- if (order == "asc") {
+      forcats::fct_infreq(data[[x_var]]) # Crescente
+    } else if (order == "desc") {
+      forcats::fct_rev(forcats::fct_infreq(data[[x_var]])) # Decrescente
+    } else {
+      factor(data[[x_var]]) # Ordem original
+    }
+  
+  
+# Função para criar gráficos de barras com percentuais
+ #plot_with_percent <- function(data, x_var, fill_var, title) {
     ggplot(data, aes_string(x = x_var, fill = fill_var)) +
       geom_bar(color = "black") +
       geom_text(stat = 'count', aes(label = scales::percent(..count../sum(..count..))),
                 position = position_stack(vjust = 0.5), color = "white") +
-      labs(title = title, x = "", y = "Nº de Respostas") +
-      theme_minimal()
+      labs(title = title, x = "", y = "Nº de Entrevistados") +
+      theme_gray()
   }
+ 
+
   
   # Socio-Econômico
   output$sexoPlot <- renderPlotly({
-    ggplotly(plot_with_percent(filtered_data(), "SEXO", "SEXO", ""))
+    ggplotly(plot_with_percent(filtered_data(), "SEXO", "SEXO", "", order = "asc"),
+             )
+    
   })
   
   output$racaPlot <- renderPlotly({
-    ggplotly(plot_with_percent(filtered_data(), "RACA", "RACA", ""))
+    ggplotly(plot_with_percent(filtered_data(), "RACA", "RACA", "", order = "asc" ))
   })
   
   output$idadePlot <- renderPlotly({
     p <- ggplot(filtered_data(), aes(x = IDADE)) +
       geom_histogram(binwidth = 5, fill = "skyblue", color = "black") +
-      labs(title = "", x = "Idades", y = "Nº de Respostas") +
-      theme_minimal()
+      labs(title = "", x = "Idades", y = "Nº de Entrevistados") +
+      theme_gray()
     ggplotly(p)
   })
   
@@ -443,10 +547,27 @@ server <- function(input, output, session) {
   })
   
   output$cargoPlot <- renderPlotly({
-    ggplotly(plot_with_percent(filtered_data(), "CARGO_FUNCAO", "CARGO_FUNCAO", ""))
+    ggplotly(plot_with_percent(filtered_data(), "CARGO_FUNCAO", "CARGO_FUNCAO", "")+
+               coord_flip()
+             
+             )
   })
   
-  # Coleta Seletiva
+  output$cnhPlot <- renderPlotly({
+    ggplotly(plot_with_percent(filtered_data(), "CNH", "CNH", ""))
+  })
+  
+  output$transportePlot <- renderPlotly({
+    ggplotly(plot_with_percent(filtered_data(), "MEIO_TRANSPORTE", "MEIO_TRANSPORTE", "")+
+             coord_flip()
+             )
+  })
+
+#------------------------------------------------------------------------------#  
+  
+  
+#------------------------------------------------------------------------------#  
+# Coleta Seletiva
   output$bairroColetaPlot <- renderPlotly({
     ggplotly(plot_with_percent(filtered_data(), "P9", "P9", ""))
   })
@@ -479,7 +600,19 @@ server <- function(input, output, session) {
   output$destinoFinalLixoPlot <- renderPlotly({
     ggplotly(plot_with_percent(filtered_data(), "P20", "P20", ""))
   })
+  
+  #output$sugeredestinoLixoPlot <- renderPlotly({
+  #  ggplotly(plot_with_percent(filtered_data(), "P21", "P21", ""))
+  #})
+  
+  observeEvent(input$reset_button, {
+    updateSelectInput(session, "municipio", selected = "Altamira")
+    updateSelectInput(session, "cnh", selected = "Sim")
+    updateSelectInput(session, "destino", selected = "Aterro Sanitário")
+  })
 }
+  
+
 
 # Executar o aplicativo
 shinyApp(ui, server)
