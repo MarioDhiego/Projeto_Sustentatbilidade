@@ -344,7 +344,61 @@ tabPanel("RECURSO COMPUTACIONAL", icon=icon("computer"),
                                   tags$a("Cristovão Simões da Mota (Atropólogo)",
                                          href = "cristovao.simoes@detran.pa.gov.br"),
                                 )
-                              ))
+                              )),
+
+tabItem(tabName = "video1",
+        tabBox(
+          id = "t2",
+          width = 12,
+          tabPanel(
+            "Video Institucional",
+            icon = icon("video"),
+            fluidRow(
+              column(
+                width = 8,
+                position = "center",
+                tags$br("Projeto "),
+                tags$video(
+                  id = "videoID",
+                  type = "video/mp4",
+                  src = "video_detran.mp4",
+                  width = 750,
+                  height = 500,
+                  controls = "controls"
+                ),
+                tags$br() ,
+                tags$a("Video: by Asdecom"),
+                align = "left"
+              ),
+              column(
+                width = 4,
+                tags$br(),
+                tags$p(
+                  style = "text-align:justify;font-si20pt",
+                  strong(
+                    "O Departamento de Trânsito do Estado do Pará obteve o Projeto “Strengthening Road Traffic Enforcement
+in Brazil” aprovado e financiado pela (United Road Safety Fund), com duração de 12 meses, se constituindo
+o único selecionado do Brasil, que somado as propostas de alguns outros países, formam o conjunto de projetos
+nacionais administrados pelo Fundo, coordenado e supervisionados por diversas Agências e Comissões
+Regionais das Nações Unidas."
+                  )
+                ),
+                tags$br(),
+                tags$p(
+                  style = "text-align: justify;font-si20pt",
+                  strong(
+                    "Concomitantemente, o Projeto Brasileiro é supervisionado pela Comissão Econômica das Nações
+Unidas para América Latina e Caribe (CEPAL), coordenado e implementado pelo DETRAN-PA
+em parceria com Conselho Estadual de Trânsito do Estado do Pará (CETRAN-PA), e tem como objetivo
+contribuir para a redução de mortes e lesões no Trânsito através das atividades de Educação, Engenharia e
+Fiscalização em nível Estadual."
+                  )
+                )
+              )
+            )
+          )
+        ))
+
               )
       ),
       
@@ -487,6 +541,7 @@ server <- function(input, output, session) {
   
 #------------------------------------------------------------------------------#
 # Carregar os dados do Excel
+  setwd("C:/Users/usuario/Documents/Projeto_Sustentatbilidade")
 data <- readxl::read_excel("BANCO_PROJETO_SUSTENTABILIDADE.xlsx")
   
   # Filtrar dados com base no município selecionado
