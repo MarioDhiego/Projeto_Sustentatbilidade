@@ -1,0 +1,74 @@
+
+/*DEMOGRAFIA------------------------------------------------------------------*/
+/*Configuraçãoes da barra de navegação navbarpage*/
+.navbar_dash{
+}
+/*Cor da barra de */
+.navbar_dash > .navbar-default {
+background-color: #fff;
+border-color: #cacaca;
+border-radius: 4px;
+}
+/*Cor personalizada do menu da barra de navegação*/
+.navbar_demografia .dropdown-menu>.active>a {
+color: #fff;
+text-decoration: none;
+background-color: #3C8DBD;
+outline: 0;
+}
+.navbar_demografia .dropdown-menu>.active>a:focus {
+color: #fff;
+text-decoration: none;
+background-color: #3C8DBD;
+outline: 0;
+}
+.navbar_demografia .dropdown-menu>.active>a:hover {
+color: #fff;
+text-decoration: none;
+background-color: #3C8DBD;
+outline: 0;
+}
+/*Cor da borda Top das Box*/
+.navbar_demografia .box-header.with-border {
+ border-bottom: 1px solid #f4f4f4;
+ border-top: 2px solid #3C8DBD;
+}
+/*Configurações do Painel*/
+.navbar_demografia .panel-body {
+ padding: 0px;
+ padding-top: 15px;
+ padding-right: 0px;
+ padding-bottom: 0px;
+ padding-left: 0px;
+}
+
+/*Configuração das div's dos seletores*/
+.navbar_dash .seletor1{ 
+width: auto;
+position: relative;
+min-height: 1px;
+padding-right: 15px;
+padding-left: 15px;
+float: left;
+}
+.navbar_dash .seletor2{
+width: auto;
+position: relative;
+min-height: 1px;
+padding-right: 15px;
+padding-left: 100px;
+float: left;
+}
+.navbar_demografia .seletor3{
+width: auto;
+position: relative;
+min-height: 1px;
+padding-right: 15px;
+padding-left: 100px;
+float: left;
+}
+.navbar_demografia .seletor3 .shiny-input-container:not(.shiny-input-container-inline) {
+width: 500px;
+max-width: 100%
+}
+

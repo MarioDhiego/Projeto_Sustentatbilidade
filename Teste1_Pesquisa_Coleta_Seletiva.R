@@ -1,6 +1,7 @@
 
 library(shiny)
 library(shinydashboard)
+library(shinydashboardPlus)
 library(ggplot2)
 library(plotly)
 library(dplyr)
@@ -10,11 +11,12 @@ ui <- dashboardPage(
   dashboardHeader(title = "Sustentabilidade Ambiental", titleWidth = 350),
   dashboardSidebar(
     sidebarMenu(
+      menuItem("Projeto",         tabName = "defprojeto", icon = icon("book")),
       menuItem("SÓCIO-ECONÔMICO", tabName = "socioeconomico", icon = icon("users")),
-      menuItem("COLETA SELETIVA", tabName = "coleta", icon = icon("recycle")),
-      menuItem("CIRETRAN", tabName = "ciretran", icon = icon("car")),
-      selectInput("municipio", "Municípios:",
-                  choices = c("Altamira", "Santarem", "Maraba", "Paraupebas", "Breves"),
+      menuItem("COLETA SELETIVA", tabName = "coleta",         icon = icon("recycle")),
+      menuItem("CIRETRAN",        tabName = "ciretran",       icon = icon("car")),
+      selectInput("municipio", "MUNICÍPIOS:",
+                  choices = c("Altamira", "Marabá", "Castanhal", "Santarem", "Parauapebas"),
                   selected = "Altamira")
     )
   ),
@@ -68,170 +70,154 @@ ui <- dashboardPage(
               )
       )
     )
+  ,
+  footer = dashboardFooter(
+    left = tags$b("DETRAN-PA"), 
+    right = tags$b("BELÉM-PA, 2024 v.1")
   )
 )
+)
+
+
+
 
 # Server
 server <- function(input, output, session) {
 
   # Dados de exemplo Socio-Econômico
   set.seed(123)
-  data <- data.frame(
-    Municipio = sample(c("Altamira", "Santarem", "Maraba", "Paraupebas", "Breves", "Castanhal", "Bragança"), 1000, replace = TRUE),
-    Sexo = sample(c("MASCULINO", "FEMININO"), 1000, replace = TRUE),
-    Raca = sample(c("PARDO", "NEGRO", "INDÍGENA", "BRANCO"), 1000, replace = TRUE),
-    Idade = sample(18:70, 1000, replace = TRUE),
-    Escolaridade = sample(c("EFI", "EFC", "EMI", "EMC", "ESI", "ESC"), 1000, replace = TRUE),
-    EstadoCivil = sample(c("SOLTEIRO", "CASADO", "UNIÃO", "OUTROS"), 1000, replace = TRUE),
-    Cargo = sample(c("Estagiário", "Terceirizado", "Auxiliar", "Assistente", "Analista", "Comissionado"), 1000, replace = TRUE)
-  )
-
+  setwd("C:/Users/usuario/Documents/Projeto_Sustentatbilidade/Projeto_Coleta_Seletiva")
+  data <- readxl::read_excel("BANCO_PROJETO_SUSTENTABILIDADE.xlsx")
+ 
   # Filtrar os dados Socio-Econômico com base no município selecionado
   filtered_data <- reactive({
-    subset(data, Municipio == input$municipio)
+    subset(data, MUNICIPIO == input$municipio)
   })
 
   # Gráficos Socio-Econômico
   output$sexoPlot <- renderPlotly({
-    p <- ggplot(filtered_data(), aes(x = reorder(Sexo, Sexo, function(x) -length(x)))) +
-      geom_bar(aes(fill = Sexo), color = "black") +
+    p1 <- ggplot(filtered_data(), aes(x = reorder(SEXO, SEXO, function(x) -length(x)))) +
+      geom_bar(aes(fill = SEXO), color = "black") +
       labs(title = "", x = "", y = "Nº de Funcionários") +
       theme_gray()
-    ggplotly(p)
+    ggplotly(p1)
   })
 
   output$racaPlot <- renderPlotly({
-    p <- ggplot(filtered_data(), aes(x = reorder(Raca, Raca, function(x) -length(x)))) +
-      geom_bar(aes(fill = Raca), color = "black") +
+    p2 <- ggplot(filtered_data(), aes(x = reorder(RACA, RACA, function(x) -length(x)))) +
+      geom_bar(aes(fill = RACA), color = "black") +
       labs(title = "", x = "", y = "Nº de Funcionários") +
       theme_gray()
-    ggplotly(p)
+    ggplotly(p2)
   })
 
   output$idadePlot <- renderPlotly({
-    p <- ggplot(filtered_data(), aes(x = Idade)) +
+    p3 <- ggplot(filtered_data(), aes(x = IDADE)) +
       geom_histogram(binwidth = 5, fill = "skyblue", color = "black") +
       labs(title = "", x = "", y = "Nº de Funcionários") +
       theme_gray()
-    ggplotly(p)
+    ggplotly(p3)
   })
 
   output$escolaridadePlot <- renderPlotly({
-    p <- ggplot(filtered_data(), aes(x = reorder(Escolaridade, Escolaridade, function(x) -length(x)))) +
-      geom_bar(aes(fill = Escolaridade), color = "black") +
+    p4 <- ggplot(filtered_data(), aes(x = reorder(ESCOLARIDADE, ESCOLARIDADE, function(x) -length(x)))) +
+      geom_bar(aes(fill = ESCOLARIDADE), color = "black") +
       labs(title = "", x = "", y = "Nº de Funcionários") +
       theme_gray()
-    ggplotly(p)
+    ggplotly(p4)
   })
 
   output$estadoCivilPlot <- renderPlotly({
-    p <- ggplot(filtered_data(), aes(x = reorder(EstadoCivil, EstadoCivil, function(x) -length(x)))) +
-      geom_bar(aes(fill = EstadoCivil), color = "black") +
+    p5 <- ggplot(filtered_data(), aes(x = reorder(ESTADO_CIVIL, ESTADO_CIVIL, function(x) -length(x)))) +
+      geom_bar(aes(fill = ESTADO_CIVIL), color = "black") +
       labs(title = "", x = "", y = "Nº de Funcionários") +
       theme_gray()
-    ggplotly(p)
+    ggplotly(p5)
   })
 
   output$cargoPlot <- renderPlotly({
-    p <- ggplot(filtered_data(), aes(x = reorder(Cargo, Cargo, function(x) -length(x)))) +
-      geom_bar(aes(fill = Cargo), color = "black") +
+    p6 <- ggplot(filtered_data(), aes(x = reorder(CARGO_FUNCAO, CARGO_FUNCAO, function(x) -length(x)))) +
+      geom_bar(aes(fill = CARGO_FUNCAO), color = "black") +
       labs(title = "", x = "", y = "Nº de Funcionários") +
       theme_minimal()
-    ggplotly(p)
+    ggplotly(p6)
   })
 
-  # Dados de exemplo Coleta Seletiva
-  coleta_data <- data.frame(
-    Municipio = sample(c("Altamira", "Santarem", "Maraba", "Paraupebas", "Breves", "Castanhal", "Bragança"), 500, replace = TRUE),
-    BairroColeta = sample(c("Sim", "Não", "Não Sei Informar"), 500, replace = TRUE),
-    Informes = sample(c("Sim", "Não"), 500, replace = TRUE),
-    SepararLixo = sample(c("Sim", "Não"), 500, replace = TRUE),
-    SepararCorretamente = sample(c("Sim", "Não", "Não Sei Informar"), 500, replace = TRUE)
-  )
 
   # Filtrar os dados de Coleta Seletiva com base no município selecionado
   filtered_coleta_data <- reactive({
-    subset(coleta_data, Municipio == input$municipio)
+    subset(data, MUNICIPIO == input$municipio)
   })
 
   # Gráficos Coleta Seletiva
   output$bairroColetaPlot <- renderPlotly({
-    p <- ggplot(filtered_coleta_data(), aes(x = reorder(BairroColeta, BairroColeta, function(x) -length(x)))) +
-      geom_bar(aes(fill = BairroColeta), color = "black") +
+    p9 <- ggplot(filtered_coleta_data(), aes(x = reorder(P9, P9, function(x) -length(x)))) +
+      geom_bar(aes(fill = P9), color = "black") +
       labs(title = "", x = "", y = "Nº de Funcionários") +
       theme_minimal()
-    ggplotly(p)
+    ggplotly(p9)
   })
 
   output$informesPlot <- renderPlotly({
-    p <- ggplot(filtered_coleta_data(), aes(x = reorder(Informes, Informes, function(x) -length(x)))) +
-      geom_bar(aes(fill = Informes), color = "black") +
+    p10 <- ggplot(filtered_coleta_data(), aes(x = reorder(P10, P10, function(x) -length(x)))) +
+      geom_bar(aes(fill = P10), color = "black") +
       labs(title = "", x = "", y = "Nº de Funcionários") +
       theme_minimal()
-    ggplotly(p)
+    ggplotly(p10)
   })
 
   output$separarLixoPlot <- renderPlotly({
-    p <- ggplot(filtered_coleta_data(), aes(x = reorder(SepararLixo, SepararLixo, function(x) -length(x)))) +
-      geom_bar(aes(fill = SepararLixo), color = "black") +
+    p11 <- ggplot(filtered_coleta_data(), aes(x = reorder(P11, P11, function(x) -length(x)))) +
+      geom_bar(aes(fill = P11), color = "black") +
       labs(title = "", x = "", y = "Nº de Funcionários") +
       theme_minimal()
-    ggplotly(p)
+    ggplotly(p11)
   })
 
   output$separarCorretamentePlot <- renderPlotly({
-    p <- ggplot(filtered_coleta_data(), aes(x = reorder(SepararCorretamente, SepararCorretamente, function(x) -length(x)))) +
-      geom_bar(aes(fill = SepararCorretamente), color = "black") +
+    p12 <- ggplot(filtered_coleta_data(), aes(x = reorder(P12, P12, function(x) -length(x)))) +
+      geom_bar(aes(fill = P12), color = "black") +
       labs(title = "", x = "", y = "Nº de Funcionários") +
       theme_minimal()
-    ggplotly(p)
+    ggplotly(p12)
   })
-
-  # Dados de exemplo CIRETRAN
-  cietran_data <- data.frame(
-    Municipio = sample(c("Altamira", "Santarem", "Maraba", "Paraupebas", "Breves", "Castanhal", "Bragança"), 500, replace = TRUE),
-    LixeiraFacilidade = sample(c("Sim", "Não"), 500, replace = TRUE),
-    UsoGarrafaCaneca = sample(c("Sim", "Não", "Às Vezes"), 500, replace = TRUE),
-    LixeiraColetaSeletiva = sample(c("Sim", "Não"), 500, replace = TRUE),
-    DestinoFinalLixo = sample(c("Sim", "Não"), 500, replace = TRUE)
-  )
 
   # Filtrar os dados de CIRETRAN com base no município selecionado
   filtered_cietran_data <- reactive({
-    subset(cietran_data, Municipio == input$municipio)
+    subset(data, MUNICIPIO == input$municipio)
   })
 
   # Gráficos CIRETRAN
   output$lixeiraFacilidadePlot <- renderPlotly({
-    p <- ggplot(filtered_cietran_data(), aes(x = reorder(LixeiraFacilidade, LixeiraFacilidade, function(x) -length(x)))) +
-      geom_bar(aes(fill = LixeiraFacilidade), color = "black") +
+    p16 <- ggplot(filtered_cietran_data(), aes(x = reorder(P16, P16, function(x) -length(x)))) +
+      geom_bar(aes(fill = P16), color = "black") +
       labs(title = "Facilidade de Encontrar Lixeiras", x = "", y = "Nº de Respostas") +
       theme_minimal()
-    ggplotly(p)
+    ggplotly(p16)
   })
 
   output$usoGarrafaCanecaPlot <- renderPlotly({
-    p <- ggplot(filtered_cietran_data(), aes(x = reorder(UsoGarrafaCaneca, UsoGarrafaCaneca, function(x) -length(x)))) +
-      geom_bar(aes(fill = UsoGarrafaCaneca), color = "black") +
+    p17 <- ggplot(filtered_cietran_data(), aes(x = reorder(P17, P17, function(x) -length(x)))) +
+      geom_bar(aes(fill = P17), color = "black") +
       labs(title = "Uso de Garrafa e Caneca", x = "", y = "Nº de Respostas") +
       theme_minimal()
-    ggplotly(p)
+    ggplotly(p17)
   })
 
   output$lixeiraColetaSeletivaPlot <- renderPlotly({
-    p <- ggplot(filtered_cietran_data(), aes(x = reorder(LixeiraColetaSeletiva, LixeiraColetaSeletiva, function(x) -length(x)))) +
-      geom_bar(aes(fill = LixeiraColetaSeletiva), color = "black") +
+    p19 <- ggplot(filtered_cietran_data(), aes(x = reorder(P19,P19, function(x) -length(x)))) +
+      geom_bar(aes(fill = P19), color = "black") +
       labs(title = "Lixeiras de Coleta Seletiva", x = "", y = "Nº de Respostas") +
       theme_minimal()
-    ggplotly(p)
+    ggplotly(p19)
   })
 
   output$destinoFinalLixoPlot <- renderPlotly({
-    p <- ggplot(filtered_cietran_data(), aes(x = reorder(DestinoFinalLixo, DestinoFinalLixo, function(x) -length(x)))) +
-      geom_bar(aes(fill = DestinoFinalLixo), color = "black") +
+    p20 <- ggplot(filtered_cietran_data(), aes(x = reorder(P20, P20, function(x) -length(x)))) +
+      geom_bar(aes(fill = P20), color = "black") +
       labs(title = "Destino Final do Lixo", x = "", y = "Nº de Respostas") +
       theme_minimal()
-    ggplotly(p)
+    ggplotly(p20)
   })
 }
 
