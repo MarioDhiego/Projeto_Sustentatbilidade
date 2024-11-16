@@ -37,7 +37,12 @@ ui <- dashboardPage( skin = "green",
                            icon("github"), "Suporte", target = "_blank"))
                   ),
   
-  dashboardSidebar(
+  dashboardSidebar(minified = FALSE,
+                   collapsed = FALSE,
+                   tags$img(src = "atitudes.jpg", 
+                            width = 230, 
+                            height = 100),
+    
     sidebarMenu(
       menuItem("PROJETO", tabName = "defprojeto", icon = icon("book"),
                menuSubItem("Sobre Projeto", tabName="sobre1", icon=icon("book")),
@@ -46,6 +51,7 @@ ui <- dashboardPage( skin = "green",
       menuItem("SÓCIO-ECONÔMICO", tabName = "socioeconomico", icon = icon("users")),
       menuItem("COLETA SELETIVA", tabName = "coleta", icon = icon("recycle")),
       menuItem("DESTINO LIXO", tabName = "ciretran", icon = icon("recycle")),
+      menuItem("ESCALA LIKERT", tabName = "likert", icon = icon("book")),
       selectInput("municipio", "MUNICÍPIOS:",
                   choices = c("Altamira", 
                               "Marabá", 
@@ -502,7 +508,20 @@ tabItem(tabName = "socioeconomico",
           #    collapsible = TRUE,
           #    plotlyOutput("sugeredestinoLixoPlot", height = 300))
               )
-      )
+      ),
+# Aba Escala Likert
+tabItem(tabName = "likert",
+        fluidRow(
+          column(width = 12,
+          box(title = "Escala Likert", 
+              status = "success", 
+              solidHeader = TRUE,
+              collapsible = TRUE,
+              plotlyOutput("likertPlot", height = 600))
+        )
+        )
+)
+
     ),
  footer = dashboardFooter(
       left = HTML("CopyRight <b>&copy; Todos os Direitos Reservados.</b>"), 
@@ -549,6 +568,10 @@ data <- readxl::read_excel("BANCO_PROJETO_SUSTENTABILIDADE.xlsx")
     subset(data, MUNICIPIO == input$municipio & CNH == input$cnh & P21 == input$destino)
   })
  
+  
+  filtered_ciretran_data <- reactive({
+    subset(data, MUNICIPIO == input$municipio & CNH == input$cnh & P21 == input$destino)
+  })
   
   # Função para criar o gráfico com porcentagens e ordenação
   plot_with_percent <- function(data, x_var, fill_var, title, order = "asc") {
@@ -656,9 +679,34 @@ data <- readxl::read_excel("BANCO_PROJETO_SUSTENTABILIDADE.xlsx")
     ggplotly(plot_with_percent(filtered_data(), "P20", "P20", ""))
   })
   
-  #output$sugeredestinoLixoPlot <- renderPlotly({
-  #  ggplotly(plot_with_percent(filtered_data(), "P21", "P21", ""))
-  #})
+ 
+  output$likertPlot <- renderPlotly({
+    # Preparar os dados para o gráfico Likert
+    likert_data <- filtered_ciretran_data() %>%
+      select(P10, P11, P13) %>%
+      mutate(across(everything(), factor, levels = c("Sim", "Não")))
+    
+    
+    paleta <- brewer.pal(5, "RdBu")
+    paleta[3] <- "#DFDFDF"
+    
+    likert_result <- likert(likert_data)
+    
+    # Criar o gráfico
+    p <- likert.bar.plot(likert_result,  text.size=4) +
+      theme(axis.text.y=element_text(size="12"))+
+      labs(x="", y = "Frequência (%)", size=12)+
+      ggtitle("Percepção sobre Sustentabilidade")+
+      scale_fill_manual(values = paleta,
+                        breaks = levels(likert_data))+
+      guides(fill = guide_legend(title = "Resposta"))+
+      theme_minimal()+
+      theme(panel.grid = element_blank(),
+            plot.background = element_rect(fill = "white"))
+    ggplotly(p)
+  })
+  
+  
   
   observeEvent(input$reset_button, {
     updateSelectInput(session, "municipio", selected = "Altamira")
