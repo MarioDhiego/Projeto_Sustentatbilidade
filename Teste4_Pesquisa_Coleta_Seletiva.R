@@ -139,7 +139,9 @@ shinyApp(
         tabItem(tabName = "ciretran",
                 fluidRow(
                   column(width = 12,
-                         box(title = "Análise das Respostas", status = "warning", solidHeader = TRUE,
+                         box(title = "Análise das Respostas", 
+                             status = "warning", 
+                             solidHeader = TRUE,
                              plotlyOutput("likertPlot", height = 600))
                   )
                 )

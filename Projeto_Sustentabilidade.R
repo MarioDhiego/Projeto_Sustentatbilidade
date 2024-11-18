@@ -48,6 +48,10 @@ ui <- dashboardPage( skin = "green",
                menuSubItem("Sobre Projeto", tabName="sobre1", icon=icon("book")),
                menuSubItem("Vídeo Institucional", tabName="video1", icon=icon("video"))
                ),
+      menuItem("PALESTRAS", tabName = "palestra", icon = icon("book"),
+               menuSubItem("Ciretran Altamira", tabName="ciretran1", icon=icon("book")),
+               menuSubItem("Ciretran Marabá", tabName="ciretran2", icon=icon("video"))
+               ),
       menuItem("SÓCIO-ECONÔMICO", tabName = "socioeconomico", icon = icon("users")),
       menuItem("COLETA SELETIVA", tabName = "coleta", icon = icon("recycle")),
       menuItem("DESTINO LIXO", tabName = "ciretran", icon = icon("recycle")),
@@ -92,6 +96,98 @@ ui <- dashboardPage( skin = "green",
     ),
 #------------------------------------------------------------------------------#
 tabItems(
+  tabItem(
+    tabName = "ciretran1",
+    tabBox(id = "t3", width = 12,
+           tabPanel( "PALESTRAS REALIZADAS
+                     ",
+                     h3("Ciretran de Altamira"),
+                     icon = icon("address-card"),
+                     fluidRow(
+                       column(width = 4,
+                              position = "left",
+                              tags$img(
+                                id = "palestra1",
+                                src = "palestra4.jpg",
+                                controls = "controls",
+                                width = 450,height = 400),
+                              tags$br(),
+                              tags$a("Photo: GT/CRH/DETRAN"),
+                              align = "left"
+                              ),
+                       column(width = 4,
+                              position = "left",
+                              tags$img(
+                                id = "palestra2",
+                                src = "palestra3.jpg",
+                                controls = "controls",
+                                width = 450,height = 400),
+                              tags$br(),
+                              tags$a("Photo: GT/CGP/DETRAN"),
+                              align = "left"),
+                       column(width = 4,
+                              position = "left",
+                              tags$img(
+                                id = "palestra3",
+                                src = "palestra1.jpg",
+                                controls = "controls",
+                                width = 450,height = 400),
+                              tags$br(),
+                              tags$a("Photo: GT/CGP/DETRAN"),
+                              align = "left")
+                     )
+           )
+    )
+  ),
+  
+  tabItem(
+    tabName = "ciretran2",
+    tabBox(id = "t4", width = 12,
+           tabPanel( "PALESTRAS REALIZADAS
+                     ",
+                     h3("Ciretran de Marabá"),
+                     icon = icon("address-card"),
+                     fluidRow(
+                       column(width = 4,
+                              position = "left",
+                              tags$img(
+                                id = "palestramaraba1",
+                                src = "palestra_maraba4.jpg",
+                                controls = "controls",
+                                width = 450,height = 400),
+                              tags$br(),
+                              tags$a("Photo: GT/CGP/DETRAN"),
+                              align = "left"
+                       ),
+                       column(width = 4,
+                              position = "left",
+                              tags$img(
+                                id = "palestramaraba2",
+                                src = "palestra_maraba1.jpg",
+                                controls = "controls",
+                                width = 450,height = 400),
+                              tags$br(),
+                              tags$a("Photo: GT/CGP/DETRAN"),
+                              align = "left"),
+                       column(width = 4,
+                              position = "left",
+                              tags$img(
+                                id = "palestramaraba3",
+                                src = "palestra_maraba2.jpg",
+                                controls = "controls",
+                                width = 450,height = 400),
+                              tags$br(),
+                              tags$a("Photo: GT/CGP/DETRAN"),
+                              align = "left")
+                     )
+           )
+    )
+  ),
+  
+  
+  
+  
+  
   tabItem(tabName="sobre1",
           tabBox(id="t1", width=12,
                  tabPanel("JUSTIFICATIVA",
