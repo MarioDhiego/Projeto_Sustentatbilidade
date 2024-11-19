@@ -1,20 +1,40 @@
+
+#======================================================================================================#
+# Pacotes Utilizados
+
+library(readr)
+library(readxl)
+library(dplyr)
+library(plyr)
+
 library(shiny)
 library(shinydashboard)
 library(shinydashboardPlus)
+library(shinyWidgets)
+library(shinycssloaders)
+
 library(ggplot2)
-library(leaflet)
 library(plotly)
-library(dplyr)
+library(leaflet)
+library(likert)
+
 library(scales) 
 library(htmlwidgets)
 library(htmltools)
-library(likert)
 library(RColorBrewer)
 
+library(table1)
+library(flextable)
+library(rstatix)
+library(haven)
+#======================================================================================================#
 
 
+
+#======================================================================================================#
 # Interface do Usuário (UI)
-ui <- dashboardPage( skin = "green",
+ui <- dashboardPage(
+  skin = "green",
   dashboardHeader(title = "Projeto Sustentabilidade Ambiental", titleWidth = 390,
                   tags$li(class = "dropdown",
                           a(href = "https://www.facebook.com/detranPARA",
@@ -49,8 +69,9 @@ ui <- dashboardPage( skin = "green",
                menuSubItem("Vídeo Institucional", tabName="video1", icon=icon("video"))
                ),
       menuItem("PALESTRAS", tabName = "palestra", icon = icon("book"),
-               menuSubItem("Ciretran Altamira", tabName="ciretran1", icon=icon("book")),
-               menuSubItem("Ciretran Marabá", tabName="ciretran2", icon=icon("video"))
+               menuSubItem("Ciretran Altamira", tabName="ciretran1", icon=icon("video")),
+               menuSubItem("Ciretran Marabá", tabName="ciretran2", icon=icon("video")),
+              menuSubItem("Ciretran Castanhal", tabName="ciretran3", icon=icon("video"))
                ),
       menuItem("SÓCIO-ECONÔMICO", tabName = "socioeconomico", icon = icon("users")),
       menuItem("COLETA SELETIVA", tabName = "coleta", icon = icon("recycle")),
@@ -108,7 +129,7 @@ tabItems(
                               position = "left",
                               tags$img(
                                 id = "palestra1",
-                                src = "palestra4.jpg",
+                                src = "Palestra1_ATM.jpg",
                                 controls = "controls",
                                 width = 450,height = 400),
                               tags$br(),
@@ -119,7 +140,7 @@ tabItems(
                               position = "left",
                               tags$img(
                                 id = "palestra2",
-                                src = "palestra3.jpg",
+                                src = "Palestra2_ATM.jpg",
                                 controls = "controls",
                                 width = 450,height = 400),
                               tags$br(),
@@ -129,7 +150,7 @@ tabItems(
                               position = "left",
                               tags$img(
                                 id = "palestra3",
-                                src = "palestra1.jpg",
+                                src = "Palestra3_ATM.jpg",
                                 controls = "controls",
                                 width = 450,height = 400),
                               tags$br(),
@@ -143,9 +164,51 @@ tabItems(
   tabItem(
     tabName = "ciretran2",
     tabBox(id = "t4", width = 12,
-           tabPanel( "PALESTRAS REALIZADAS
-                     ",
+           tabPanel( "PALESTRAS REALIZADAS",
                      h3("Ciretran de Marabá"),
+                     icon = icon("address-card"),
+                     fluidRow(
+                       column(width = 4,
+                              position = "left",
+                              tags$img(
+                                id = "palestramaraba1",
+                                src = "Palestra3_MAB.jpg",
+                                controls = "controls",
+                                width = 450,height = 400),
+                              tags$br(),
+                              tags$a("Photo: GT/CGP/DETRAN"),
+                              align = "left"
+                       ),
+                       column(width = 4,
+                              position = "left",
+                              tags$img(
+                                id = "palestramaraba2",
+                                src = "Palestra1_MAB.jpg",
+                                controls = "controls",
+                                width = 450,height = 400),
+                              tags$br(),
+                              tags$a("Photo: GT/CGP/DETRAN"),
+                              align = "left"),
+                       column(width = 4,
+                              position = "left",
+                              tags$img(
+                                id = "palestramaraba3",
+                                src = "Palestra2_MAB.jpg",
+                                controls = "controls",
+                                width = 450,height = 400),
+                              tags$br(),
+                              tags$a("Photo: GT/CGP/DETRAN"),
+                              align = "left")
+                     )
+           )
+    )
+  ),
+  
+  tabItem(
+    tabName = "ciretran3",
+    tabBox(id = "t5", width = 12,
+           tabPanel( "PALESTRAS REALIZADAS",
+                     h3("Ciretran de Castanhal"),
                      icon = icon("address-card"),
                      fluidRow(
                        column(width = 4,
@@ -183,9 +246,6 @@ tabItems(
            )
     )
   ),
-  
-  
-  
   
   
   tabItem(tabName="sobre1",
@@ -613,7 +673,9 @@ tabItem(tabName = "likert",
               status = "success", 
               solidHeader = TRUE,
               collapsible = TRUE,
-              plotlyOutput("likertPlot", height = 600))
+              plotlyOutput("likertPlot",
+                           width = 600,
+                           height = 600))
         )
         )
 )
@@ -623,7 +685,6 @@ tabItem(tabName = "likert",
       left = HTML("CopyRight <b>&copy; Todos os Direitos Reservados.</b>"), 
       right = tags$b("Belém-PA, 2024 v.1")
     )
-  
 
 )
 )
@@ -656,9 +717,12 @@ server <- function(input, output, session) {
   
 #------------------------------------------------------------------------------#
 # Carregar os dados do Excel
-  setwd("C:/Users/usuario/Documents/Projeto_Sustentatbilidade")
-data <- readxl::read_excel("BANCO_PROJETO_SUSTENTABILIDADE.xlsx")
-  
+setwd("C:/Users/mario.valente/Documents/github_2024/Projeto_Sustentatbilidade-main")
+
+data <- readxl::read_excel("BANCO1_PROJETO_SUSTENTABILIDADE.xlS")
+Dados_Clima <- readxl::read_excel("Dados_Clima.xlS")
+#------------------------------------------------------------------------------#
+
   # Filtrar dados com base no município selecionado
   filtered_data <- reactive({
     subset(data, MUNICIPIO == input$municipio & CNH == input$cnh & P21 == input$destino)
@@ -666,7 +730,7 @@ data <- readxl::read_excel("BANCO_PROJETO_SUSTENTABILIDADE.xlsx")
  
   
   filtered_ciretran_data <- reactive({
-    subset(data, MUNICIPIO == input$municipio & CNH == input$cnh & P21 == input$destino)
+    subset(Dados_Clima, MUNICIPIO == input$municipio & GENERO == input$GENERO)
   })
   
   # Função para criar o gráfico com porcentagens e ordenação
@@ -775,31 +839,45 @@ data <- readxl::read_excel("BANCO_PROJETO_SUSTENTABILIDADE.xlsx")
     ggplotly(plot_with_percent(filtered_data(), "P20", "P20", ""))
   })
   
- 
+#===============================================================================#
+  
+ #==============================================================================
+  
+  
+  
+  
   output$likertPlot <- renderPlotly({
-    # Preparar os dados para o gráfico Likert
-    likert_data <- filtered_ciretran_data() %>%
-      select(P10, P11, P13) %>%
-      mutate(across(everything(), factor, levels = c("Sim", "Não")))
     
+    Dados_Clima[,1:9] <- lapply(Dados_Clima[,1:9], 
+                                factor, 
+                                levels = 1:5,
+                                labels = c("Sempre", 
+                                           "Quase Sempre", 
+                                           "Raramente", 
+                                           "Nunca", 
+                                           "Não Tenho Opnião"),
+                                order = TRUE)
+   
+    
+    dados_grafico <- likert(as.data.frame(Dados_Clima[1:9]))
     
     paleta <- brewer.pal(5, "RdBu")
     paleta[3] <- "#DFDFDF"
     
-    likert_result <- likert(likert_data)
     
-    # Criar o gráfico
-    p <- likert.bar.plot(likert_result,  text.size=4) +
+    g1 <- likert.bar.plot(dados_grafico, text.size=4)+
       theme(axis.text.y=element_text(size="12"))+
       labs(x="", y = "Frequência (%)", size=12)+
       ggtitle("Percepção sobre Sustentabilidade")+
       scale_fill_manual(values = paleta,
-                        breaks = levels(likert_data))+
+                        breaks = levels(Dados_Clima$`Q1(16)`))+
       guides(fill = guide_legend(title = "Resposta"))+
       theme_minimal()+
       theme(panel.grid = element_blank(),
             plot.background = element_rect(fill = "white"))
-    ggplotly(p)
+    ggplotly(g1)
+    
+  
   })
   
   
