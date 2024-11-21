@@ -27,6 +27,8 @@ library(table1)
 library(flextable)
 library(rstatix)
 library(haven)
+library(DiagrammeR) 
+library(rlang)
 #======================================================================================================#
 
 
@@ -35,7 +37,8 @@ library(haven)
 # Interface do Usuário (UI)
 ui <- dashboardPage(
   skin = "green",
-  dashboardHeader(title = "Projeto Sustentabilidade Ambiental", titleWidth = 390,
+  dashboardHeader(title = "Projeto Sustentabilidade Ambiental", 
+                  titleWidth = 390,
                   tags$li(class = "dropdown",
                           a(href = "https://www.facebook.com/detranPARA",
                             class = "fa fa-facebook",
@@ -68,10 +71,15 @@ ui <- dashboardPage(
                menuSubItem("Sobre Projeto", tabName="sobre1", icon=icon("book")),
                menuSubItem("Vídeo Institucional", tabName="video1", icon=icon("video"))
                ),
+      menuItem("CIRETRAN'S", tabName = "catCiretran", icon = icon("book"),
+               menuSubItem("TIPO A", tabName = "tipoA", icon = icon("book")),
+               menuSubItem("TIPO B", tabName = "tipoB", icon = icon("book"))
+      ),
       menuItem("PALESTRAS", tabName = "palestra", icon = icon("book"),
-               menuSubItem("Ciretran Altamira", tabName="ciretran1", icon=icon("video")),
-               menuSubItem("Ciretran Marabá", tabName="ciretran2", icon=icon("video")),
-              menuSubItem("Ciretran Castanhal", tabName="ciretran3", icon=icon("video"))
+               menuSubItem("ALTAMIRA", tabName="ciretran1", icon=icon("video")),
+               menuSubItem("MARABÁ", tabName="ciretran2", icon=icon("video")),
+               menuSubItem("BELÉM", tabName="ciretran3", icon=icon("video")),
+              menuSubItem("CASTANHAL", tabName="ciretran4", icon=icon("video"))
                ),
       menuItem("SÓCIO-ECONÔMICO", tabName = "socioeconomico", icon = icon("users")),
       menuItem("COLETA SELETIVA", tabName = "coleta", icon = icon("recycle")),
@@ -118,11 +126,61 @@ ui <- dashboardPage(
 #------------------------------------------------------------------------------#
 tabItems(
   tabItem(
+    tabName = "tipoA",
+           tabPanel("TIPOS DE CIRETRAN'S",
+                    icon = icon("address-card"),   
+                    fluidRow(
+                      box(
+                        width = 12,
+                        title = tags$div("CIRETRAN DO TIPO A",
+                                         style = "text-align: center"),
+                        status = "success",
+                        solidHeader = TRUE,
+                        collapsible = TRUE,
+                        headerBorder = TRUE,
+                        div(class = "elemente",
+                            DiagrammeROutput("ciretrantipoA")
+                        )
+                        
+                      )
+                    )
+           )
+    
+  ),
+  
+  tabItem(
+    tabName = "tipoB",
+    tabPanel("TIPOS DE CIRETRAN'S",
+             icon = icon("address-card"),   
+             fluidRow(
+               box(
+                 width = 12,
+                 title = "CIRETRAN DO TIPO B",
+                 style = "text-align: center",
+                 status = "success",
+                 solidHeader = TRUE,
+                 collapsible = TRUE,
+                 headerBorder = TRUE,
+                 div(class = "elemente",
+                     DiagrammeROutput("ciretrantipoB")
+                 )
+                 
+               )
+             )
+    )
+    
+  ),
+  
+  
+  
+  
+  tabItem(
     tabName = "ciretran1",
     tabBox(id = "t3", width = 12,
-           tabPanel( "PALESTRAS REALIZADAS
-                     ",
-                     h3("Ciretran de Altamira"),
+           tabPanel("PALESTRAS REALIZADAS",
+                     tags$br(),
+                     h3("MUNICÍPIO DE ALTAMIRA", align = "center"),
+                    tags$br(),
                      icon = icon("address-card"),
                      fluidRow(
                        column(width = 4,
@@ -164,8 +222,10 @@ tabItems(
   tabItem(
     tabName = "ciretran2",
     tabBox(id = "t4", width = 12,
-           tabPanel( "PALESTRAS REALIZADAS",
-                     h3("Ciretran de Marabá"),
+           tabPanel("PALESTRAS REALIZADAS",
+                    tags$br(),
+                     h3("MUNICÍPIO DE MARABÁ", align = "center"),
+                    tags$br(),
                      icon = icon("address-card"),
                      fluidRow(
                        column(width = 4,
@@ -203,19 +263,64 @@ tabItems(
            )
     )
   ),
-  
   tabItem(
     tabName = "ciretran3",
     tabBox(id = "t5", width = 12,
-           tabPanel( "PALESTRAS REALIZADAS",
-                     h3("Ciretran de Castanhal"),
+           tabPanel("PALESTRAS REALIZADAS",
+                    tags$br(),
+                    h3("MUNICÍPIO DE BELÉM", align = "center"),
+                    tags$br(),
+                    icon = icon("address-card"),
+                    fluidRow(
+                      column(width = 4,
+                             position = "left",
+                             tags$img(
+                               id = "palestrabelem1",
+                               src = "Palestra_Belem3.jpeg",
+                               controls = "controls",
+                               width = 450,height = 400),
+                             tags$br(),
+                             tags$a("Photo: GT/CGP/DETRAN"),
+                             align = "left"
+                      ),
+                      column(width = 4,
+                             position = "left",
+                             tags$img(
+                               id = "palestrabelem2",
+                               src = "Palestra_Belem2.jpeg",
+                               controls = "controls",
+                               width = 450,height = 400),
+                             tags$br(),
+                             tags$a("Photo: GT/CGP/DETRAN"),
+                             align = "left"),
+                      column(width = 4,
+                             position = "left",
+                             tags$img(
+                               id = "palestrabelem3",
+                               src = "Palestra_Belem1.jpeg",
+                               controls = "controls",
+                               width = 450,height = 400),
+                             tags$br(),
+                             tags$a("Photo: GT/CGP/DETRAN"),
+                             align = "left")
+                    )
+           )
+    )
+  ),
+  tabItem(
+    tabName = "ciretran4",
+    tabBox(id = "t6", width = 12,
+           tabPanel("PALESTRAS REALIZADAS",
+                    tags$br(),
+                    h3("MUNICÍPIO DE CASTANHAL", align = "center"),
+                    tags$br(),
                      icon = icon("address-card"),
                      fluidRow(
                        column(width = 4,
                               position = "left",
                               tags$img(
-                                id = "palestramaraba1",
-                                src = "palestra_maraba4.jpg",
+                                id = "palestracastanhal1",
+                                src = "",
                                 controls = "controls",
                                 width = 450,height = 400),
                               tags$br(),
@@ -225,8 +330,8 @@ tabItems(
                        column(width = 4,
                               position = "left",
                               tags$img(
-                                id = "palestramaraba2",
-                                src = "palestra_maraba1.jpg",
+                                id = "palestracastanhal2",
+                                src = "",
                                 controls = "controls",
                                 width = 450,height = 400),
                               tags$br(),
@@ -235,8 +340,8 @@ tabItems(
                        column(width = 4,
                               position = "left",
                               tags$img(
-                                id = "palestramaraba3",
-                                src = "palestra_maraba2.jpg",
+                                id = "palestracastanhal3",
+                                src = "",
                                 controls = "controls",
                                 width = 450,height = 400),
                               tags$br(),
@@ -250,21 +355,26 @@ tabItems(
   
   tabItem(tabName="sobre1",
           tabBox(id="t1", width=12,
-                 tabPanel("JUSTIFICATIVA",
+                 tabPanel("REFERENCIAL",
                       icon = icon("address-card"),
                       fluidRow(
                         column(width = 8,
                                position = "left",
+                               tags$br(),
+                               tags$br(),
+                               tags$br(),
                                tags$img(
                                  id = "foto1",
                                  src = "sustentabilidade.jpg",
                                  controls = "controls",
-                                 width = 550,height = 400),
+                                 width = 650,height = 450),
                                tags$br(),
                                tags$a("Photo by Asdecom"),
                                align = "left"
                                 ),
                           column(width = 4,
+                                 tags$br(),
+                                 h3("JUSTIFICATIVA", align = "center"),
                                  tags$br(),
                                  tags$p(
                                    style = "text-align:justify;font-si20pt",
@@ -291,7 +401,9 @@ tabPanel("BASE LEGAL",
            column(
              width = 4,
              position = "center",
-             tags$br("LEGISLAÇÃO ESTADUAL"),
+             tags$br(),
+             h3("LEGISLAÇÃO ESTADUAL", align = "center"),
+             tags$br(),
              solidHeader = TRUE,
              tags$br(),
              tags$p(
@@ -317,7 +429,9 @@ tabPanel("BASE LEGAL",
            column(
                width = 4,
                position = "center",
-               tags$br("OBJETIVOS DESENVOLVIMENTO SUSTENTÁVEL"),
+               tags$br(),
+               h3("ODS" , align = "center"),
+               tags$br(),
                solidHeader = TRUE,
                tags$br(),
                tags$p(
@@ -351,7 +465,8 @@ tabPanel("MATERIAL E MÉTODOS",
          fluidRow(
            column(width = 4, 
                   position = "center",
-                  tags$br("OBJETIVO GERAL"),
+                  tags$br(),
+                  h3("OBJETIVO GERAL", align = "center"),
                   tags$br(),
                   tags$p(
                     style = "text-align:justify;font-si20pt",
@@ -360,7 +475,7 @@ tabPanel("MATERIAL E MÉTODOS",
                     )
                   ),
                   tags$br(),
-                  tags$br("OBJETIVOS ESPECÍFICOS"),
+                  h3("OBJETIVOS ESPECÍFICOS", align = "center"),
                   tags$p(style = "text-align:justify;font-si20pt",
                          strong(" ")),
                   tags$p(style = "text-align:justify;font-si20pt",
@@ -379,7 +494,7 @@ tabPanel("MATERIAL E MÉTODOS",
             width = 4,
             position = "center",
             tags$br(),
-            tags$br("ETAPAS OPERACIONAIS"),
+            h3("ETAPAS OPERACIONAIS" ,align = "center"),
             tags$br(),
             tags$p(style = "text-align:justify;font-si20pt",
                    strong("1) Visita Técnica as CIRETRAN'S do Tipo A;")),
@@ -394,7 +509,7 @@ tabPanel("MATERIAL E MÉTODOS",
             tags$p(style = "text-align: justify;font-si20pt",
                    strong("6) Pesquiva de Levantamento: Cooperativas/Associações de Reciclagem;")),
             tags$br(),
-            tags$br("QUESTIONÁRIO"),
+            h3("MÉTRICA", align = "center"),
             tags$br(),
             tags$p(
               style = "text-align:justify;font-si20pt",
@@ -410,6 +525,9 @@ tabPanel("RECURSO COMPUTACIONAL", icon=icon("computer"),
          fluidRow(
            column(width=4,
                   position="center",
+                  tags$br(),
+                  h3("SOFTWARE" ,align = "center"),
+                  tags$br(),
                   solidHeader = TRUE,
                   tags$br(),
                   tags$p(style="text-align: justify;font-si20pt",
@@ -429,14 +547,20 @@ tabPanel("RECURSO COMPUTACIONAL", icon=icon("computer"),
                                 column(width=4,
                                        position="center",solidHeader = TRUE,
                                        tags$br(),
+                                       tags$br(),
+                                       tags$br(),
+                                       tags$br(),
+                                       tags$br(),
+                                       tags$br(),
                                        tags$p(style="text-align: justify;font-si20pt",
                                               strong("Foi utilizado um Ambiente de Desenvolvmento Integrado (IDE) Chamado Rstudio Versão 1.4.1.7, utilizando um Processo de Extração-Transformação-Carga(ETL) com uso de Várias bibliotecas (library), para o Ambiente Windows")),
+                                       tags$br(),
                                        tags$br(),
                                        tags$img(
                                          id="foto3",
                                          src="RStudio.png",
                                          controls="controls",
-                                         width=180,height=150),
+                                         width=190,height=170),
                                        tags$br(),
                                        tags$a("RStudio",
                                               href = "https://download1.rstudio.org/electron/windows/RStudio-2023.09.1-494.exe"),
@@ -452,6 +576,8 @@ tabPanel("RECURSO COMPUTACIONAL", icon=icon("computer"),
                            width = 4,
                            position = "center",
                            solidHeader = TRUE,
+                           tags$br(),
+                           h3("DIREITOS AUTORAIS" ,align = "center"),
                            tags$br(),
                            tags$p(
                              style = "text-align: justify;font-si20pt",
@@ -494,17 +620,34 @@ tabPanel("RECURSO COMPUTACIONAL", icon=icon("computer"),
                      tabPanel("RESPONSÁVEL TÉCNICO",
                               fluidRow(
                                 column(
-                                  width = 4,
+                                  width = 5,
                                   position = "center",
+                                  tags$br(),
+                                  h3("EQUIPE TÉCNICA", align = "center"),
+                                  tags$br(),
+                                  tags$p(
+                                    style = "text-align: justify;font-si20pt",
+                                    tags$br(),
+                                    strong("Projeto de Sustentabilidade Ambiental POR TODO O PARÁ da Autarquia de Trânsito, Desenvolvido na Coordenadoria de Gestão de Pessoa, sob a tutela da Gerência de Treinamento (Sra. Vera Brazil). 
+", 
+                                           tags$br(),
+tags$a("",                                                                                                                                                                                                                                          href = "cristovao.simoes@detran.pa.gov.br")
+                                    ),
+tags$br(),
+strong(
+  "O Projeto é Executado sob a Supervisão Técnica do Servidor, Assistende de Trânsito, Sr:", 
+  tags$a("CRISTOVÃO SIMÕES DA MOTA (Atropólogo)",                                                                                                                                                                                                                                          href = "cristovao.simoes@detran.pa.gov.br")
+)
+
+
+                                  ),
                                   tags$br(),
                                   tags$p(
                                     style = "text-align: justify;font-si20pt",
                                     strong(
-                                      "Reclamações, sugestões, críticas e elogios relacionados ao Projeto de Sustentabilidade Ambiental Por Todo o Pará do DETRAN-PA podem ser registrados na Gerência de Treinamento, por intermédio do Responsável Técnico e mentor intelectual, Sr: "
+"Reclamações, sugestões, críticas e elogios relacionados ao Projeto de Sustentabilidade Ambiental Por Todo o Pará do DETRAN-PA podem ser registrados na Gerência de Treinamento"
                                     )
-                                  ),
-                                  tags$a("Cristovão Simões da Mota (Atropólogo)",
-                                         href = "cristovao.simoes@detran.pa.gov.br"),
+                                  )
                                 )
                               )),
 
@@ -681,17 +824,86 @@ tabItem(tabName = "likert",
 )
 
     ),
- footer = dashboardFooter(
-      left = HTML("CopyRight <b>&copy; Todos os Direitos Reservados.</b>"), 
-      right = tags$b("Belém-PA, 2024 v.1")
-    )
-
 )
 )
    
 
 # Server
 server <- function(input, output, session) {
+  
+  output$ciretrantipoA <- renderDiagrammeR({
+    mermaid("
+graph TB
+A[DETRAN-PA]-->B[CIRETRAN A]
+B-->C[LEI Nº7594/2011]
+B-->D[LEI Nº432/2019]
+C-->E[SANTARÉM]
+E-->F[CASTANHAL]
+F-->G[MARABÁ]
+G-->H[ABAETETUBA]
+C-->I[ALTAMIRA]
+I-->J[CAPANEMA]
+J-->K[PARAGOMINAS]
+K-->L[TUCURUÍ]
+C-->M[REDENÇÃO]
+M-->N[ITAITUBA]
+N-->O[PARAUAPEBAS]
+O-->P[BREVES]
+D-->Q[BRAGANÇA]
+Q-->R[SÃO FÉLIX]
+", width = 1000, 
+            align = 'center')
+  })
+  
+  output$ciretrantipoB <- renderDiagrammeR({
+    mermaid("graph TB
+  A[LEI Nº7594/2011]-->B[DETRAN-PA]
+  B-->C[CIRETRAN TIPO B]
+  C-->D[SOURE]
+  D-->E[ALENQUER]
+  E-->F[ALMEIRIM]
+  F-->G[MONTE ALEGRE]
+  G-->H[ÓBIDOS]
+  C-->I[ORIXIMINÁ]
+  I-->J[IGUARAPÉ-AÇÚ]
+  J-->K[SÃO MIGUEL]
+  K-->L[SANTA LUZIA]
+  L-->M[TOMÉ-AÇÚ]
+  C-->N[ITUPIRANGA]
+  N-->O[JACUNDÁ]
+  O-->P[RONDON]
+  P-->Q[SÃO GERALDO]
+  Q-->R[BARCARENA]
+  C-->S[IGARAPÉ-MIRI]
+  S-->T[MEDICILÂNDIA]
+  T-->U[URUARÁ]
+  U-->V[CAPITÃO POÇO]
+  V-->W[OURILÂNDIA DO NORTE]
+  C-->X[DOM ELISEU]
+  X-->Y[MÃE DO RIO]
+  Y-->Z[NOVO REPARTIMENTO]
+  Z-->A1[CONCEIÇÃO DO ARAGUAIA]
+  A1-->A2[SANTANA DO ARAGUAIA]
+  C-->A3[TUCUMÃ]
+  A3-->A4[NOVO PROGRESSO]
+  A4-->A5[CANÃA DOS CARAJÁS]
+  A5-->A6[CURIONÓPOLIS]
+  A6-->A7[RURÓPOLIS]
+   C-->A8[ANANINDEUA]
+   A8-->A9[CAMETÁ]
+   A9-->A10[VIGIA]
+   A10-->A11[SALINÓPOLIS]
+   A11-->A12[TAILÂNDIA]
+   
+   
+   
+   
+   
+  ", width = 1000)
+  })
+  
+  
+  
   
   detran_location <- data.frame(
     lat = -1.37843,
@@ -717,7 +929,7 @@ server <- function(input, output, session) {
   
 #------------------------------------------------------------------------------#
 # Carregar os dados do Excel
-setwd("C:/Users/mario.valente/Documents/github_2024/Projeto_Sustentatbilidade-main")
+setwd("C:/Users/usuario/Documents/Projeto_Sustentatbilidade")
 
 data <- readxl::read_excel("BANCO1_PROJETO_SUSTENTABILIDADE.xlS")
 Dados_Clima <- readxl::read_excel("Dados_Clima.xlS")
