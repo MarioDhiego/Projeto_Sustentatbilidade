@@ -1,28 +1,22 @@
-
 #======================================================================================================#
 # Pacotes Utilizados
-
 library(readr)
 library(readxl)
 library(dplyr)
 library(plyr)
-
 library(shiny)
 library(shinydashboard)
 library(shinydashboardPlus)
 library(shinyWidgets)
 library(shinycssloaders)
-
 library(ggplot2)
 library(plotly)
 library(leaflet)
 library(likert)
-
 library(scales) 
 library(htmlwidgets)
 library(htmltools)
 library(RColorBrewer)
-
 library(table1)
 library(flextable)
 library(rstatix)
@@ -30,9 +24,6 @@ library(haven)
 library(DiagrammeR) 
 library(rlang)
 #======================================================================================================#
-
-
-
 #======================================================================================================#
 # Interface do Usuário (UI)
 ui <- dashboardPage(
@@ -59,13 +50,11 @@ ui <- dashboardPage(
                     tags$a(href="https://github.com/MarioDhiego",
                            icon("github"), "Suporte", target = "_blank"))
                   ),
-  
   dashboardSidebar(minified = FALSE,
                    collapsed = FALSE,
                    tags$img(src = "atitudes.jpg", 
                             width = 230, 
                             height = 100),
-    
     sidebarMenu(
       menuItem("PROJETO", tabName = "defprojeto", icon = icon("book"),
                menuSubItem("Sobre Projeto", tabName="sobre1", icon=icon("book")),
@@ -84,7 +73,11 @@ ui <- dashboardPage(
       menuItem("SÓCIO-ECONÔMICO", tabName = "socioeconomico", icon = icon("users")),
       menuItem("COLETA SELETIVA", tabName = "coleta", icon = icon("recycle")),
       menuItem("DESTINO LIXO", tabName = "ciretran", icon = icon("recycle")),
-      menuItem("ESCALA LIKERT", tabName = "likert", icon = icon("book")),
+      menuItem("PERCEPÇÃO", tabName = "escalalikert", icon = icon("book"),
+               menuSubItem("Percepção Geral", tabName = "likertgeral", icon = icon("book")),
+               menuSubItem("Percepção po Gênero", tabName = "likertgenero", icon = icon("book"))
+               
+               ),
       selectInput("municipio", "MUNICÍPIOS:",
                   choices = c("Altamira", 
                               "Marabá", 
@@ -145,9 +138,7 @@ tabItems(
                       )
                     )
            )
-    
   ),
-  
   tabItem(
     tabName = "tipoB",
     tabPanel("TIPOS DE CIRETRAN'S",
@@ -168,12 +159,7 @@ tabItems(
                )
              )
     )
-    
   ),
-  
-  
-  
-  
   tabItem(
     tabName = "ciretran1",
     tabBox(id = "t3", width = 12,
@@ -189,7 +175,7 @@ tabItems(
                                 id = "palestra1",
                                 src = "Palestra1_ATM.jpg",
                                 controls = "controls",
-                                width = 450,height = 400),
+                                width = 400, height = 400),
                               tags$br(),
                               tags$a("Photo: GT/CRH/DETRAN"),
                               align = "left"
@@ -200,7 +186,7 @@ tabItems(
                                 id = "palestra2",
                                 src = "Palestra2_ATM.jpg",
                                 controls = "controls",
-                                width = 450,height = 400),
+                                width = 400,height = 400),
                               tags$br(),
                               tags$a("Photo: GT/CGP/DETRAN"),
                               align = "left"),
@@ -210,7 +196,7 @@ tabItems(
                                 id = "palestra3",
                                 src = "Palestra3_ATM.jpg",
                                 controls = "controls",
-                                width = 450,height = 400),
+                                width = 400,height = 400),
                               tags$br(),
                               tags$a("Photo: GT/CGP/DETRAN"),
                               align = "left")
@@ -218,7 +204,6 @@ tabItems(
            )
     )
   ),
-  
   tabItem(
     tabName = "ciretran2",
     tabBox(id = "t4", width = 12,
@@ -234,7 +219,7 @@ tabItems(
                                 id = "palestramaraba1",
                                 src = "Palestra3_MAB.jpg",
                                 controls = "controls",
-                                width = 450,height = 400),
+                                width = 400,height = 400),
                               tags$br(),
                               tags$a("Photo: GT/CGP/DETRAN"),
                               align = "left"
@@ -245,7 +230,7 @@ tabItems(
                                 id = "palestramaraba2",
                                 src = "Palestra1_MAB.jpg",
                                 controls = "controls",
-                                width = 450,height = 400),
+                                width = 400,height = 400),
                               tags$br(),
                               tags$a("Photo: GT/CGP/DETRAN"),
                               align = "left"),
@@ -255,7 +240,7 @@ tabItems(
                                 id = "palestramaraba3",
                                 src = "Palestra2_MAB.jpg",
                                 controls = "controls",
-                                width = 450,height = 400),
+                                width = 400,height = 400),
                               tags$br(),
                               tags$a("Photo: GT/CGP/DETRAN"),
                               align = "left")
@@ -278,9 +263,9 @@ tabItems(
                                id = "palestrabelem1",
                                src = "Palestra_Belem3.jpeg",
                                controls = "controls",
-                               width = 450,height = 400),
+                               width = 400,height = 400),
                              tags$br(),
-                             tags$a("Photo: GT/CGP/DETRAN"),
+                             tags$a("Photo: ASDECOM"),
                              align = "left"
                       ),
                       column(width = 4,
@@ -289,9 +274,9 @@ tabItems(
                                id = "palestrabelem2",
                                src = "Palestra_Belem2.jpeg",
                                controls = "controls",
-                               width = 450,height = 400),
+                               width = 400,height = 400),
                              tags$br(),
-                             tags$a("Photo: GT/CGP/DETRAN"),
+                             tags$a("Photo: ASDECOM"),
                              align = "left"),
                       column(width = 4,
                              position = "left",
@@ -299,9 +284,9 @@ tabItems(
                                id = "palestrabelem3",
                                src = "Palestra_Belem1.jpeg",
                                controls = "controls",
-                               width = 450,height = 400),
+                               width = 400,height = 400),
                              tags$br(),
-                             tags$a("Photo: GT/CGP/DETRAN"),
+                             tags$a("Photo: ASDECOM"),
                              align = "left")
                     )
            )
@@ -324,7 +309,7 @@ tabItems(
                                 controls = "controls",
                                 width = 450,height = 400),
                               tags$br(),
-                              tags$a("Photo: GT/CGP/DETRAN"),
+                              tags$a("Photo: ASDECOM"),
                               align = "left"
                        ),
                        column(width = 4,
@@ -335,7 +320,7 @@ tabItems(
                                 controls = "controls",
                                 width = 450,height = 400),
                               tags$br(),
-                              tags$a("Photo: GT/CGP/DETRAN"),
+                              tags$a("Photo: ASDECOM"),
                               align = "left"),
                        column(width = 4,
                               position = "left",
@@ -345,14 +330,12 @@ tabItems(
                                 controls = "controls",
                                 width = 450,height = 400),
                               tags$br(),
-                              tags$a("Photo: GT/CGP/DETRAN"),
+                              tags$a("Photo: ASDECOM"),
                               align = "left")
                      )
            )
     )
   ),
-  
-  
   tabItem(tabName="sobre1",
           tabBox(id="t1", width=12,
                  tabPanel("REFERENCIAL",
@@ -487,9 +470,7 @@ tabPanel("MATERIAL E MÉTODOS",
                   tags$p(style = "text-align: justify;font-si20pt",
                          strong("4) Colaborar com possíveis estudos acadêmicos sobre o descarte consciente de resíduos, políticas de reciclagem e responsabilidade socioambiental.")),
                   tags$p(style = "text-align: justify;font-si20pt")
-
            ),
-
           column(
             width = 4,
             position = "center",
@@ -520,7 +501,6 @@ tabPanel("MATERIAL E MÉTODOS",
           )
          )
 ),
-
 tabPanel("RECURSO COMPUTACIONAL", icon=icon("computer"),
          fluidRow(
            column(width=4,
@@ -607,7 +587,6 @@ tabPanel("RECURSO COMPUTACIONAL", icon=icon("computer"),
                              )
                            ),
                            tags$br(),
-                           
                          ),
                          column(width = 4,
                                 position = "center",
@@ -638,8 +617,6 @@ strong(
   "O Projeto é Executado sob a Supervisão Técnica do Servidor, Assistende de Trânsito, Sr:", 
   tags$a("CRISTOVÃO SIMÕES DA MOTA (Atropólogo)",                                                                                                                                                                                                                                          href = "cristovao.simoes@detran.pa.gov.br")
 )
-
-
                                   ),
                                   tags$br(),
                                   tags$p(
@@ -650,7 +627,6 @@ strong(
                                   )
                                 )
                               )),
-
 tabItem(tabName = "video1",
         tabBox(
           id = "t2",
@@ -703,12 +679,8 @@ Fiscalização em nível Estadual."
             )
           )
         ))
-
               )
       ),
-      
-      
-      
 #------------------------------------------------------------------------------#
 # Aba Socio-Econômico
 tabItem(tabName = "socioeconomico",
@@ -809,28 +781,57 @@ tabItem(tabName = "socioeconomico",
               )
       ),
 # Aba Escala Likert
-tabItem(tabName = "likert",
+
+tabItem(
+  tabName = "likertgeral",
+  tabPanel("Escala Likert",
+           icon = icon("address-card"),
         fluidRow(
-          column(width = 12,
-          box(title = "Escala Likert", 
+          box( width = 8,
+            title = tags$div("PERCPÇÃO SOBRE SUSTENTABILIDADE GERAL",
+                             style = "text-align: center"),
               status = "success", 
               solidHeader = TRUE,
               collapsible = TRUE,
-              plotlyOutput("likertPlot",
-                           width = 600,
-                           height = 600))
+              plotlyOutput("likertPlot1",
+                           width = 800,
+                           height = 700)
+              )
         )
-        )
-)
+  )
+),
 
+tabItem(
+  tabName = "likertgenero",
+  tabPanel("Escala Likert Gênero",
+           icon = icon("address-card"),   
+           fluidRow(
+             box(
+               width = 8,
+               title = "PERCEPÇÃO SOBRE SUSTENTABILIDADE POR GÊNERO",
+               style = "text-align: center",
+               status = "success",
+               solidHeader = TRUE,
+               collapsible = TRUE,
+               headerBorder = TRUE,
+               div(class = "elemente",
+                   plotlyOutput("likertPlot2",
+                                width = 800,
+                                height = 700
+                                )
+               )
+               
+             )
+           )
+  )
+)
     ),
 )
 )
    
-
+#==============================================================================#
 # Server
 server <- function(input, output, session) {
-  
   output$ciretrantipoA <- renderDiagrammeR({
     mermaid("
 graph TB
@@ -894,17 +895,9 @@ Q-->R[SÃO FÉLIX]
    A9-->A10[VIGIA]
    A10-->A11[SALINÓPOLIS]
    A11-->A12[TAILÂNDIA]
-   
-   
-   
-   
-   
   ", width = 1000)
   })
-  
-  
-  
-  
+
   detran_location <- data.frame(
     lat = -1.37843,
     lon = -48.44034
@@ -929,7 +922,7 @@ Q-->R[SÃO FÉLIX]
   
 #------------------------------------------------------------------------------#
 # Carregar os dados do Excel
-setwd("C:/Users/usuario/Documents/Projeto_Sustentatbilidade")
+setwd("C:/Users/mario.valente/Documents/github_2024/Projeto_Sustentatbilidade-main")
 
 data <- readxl::read_excel("BANCO1_PROJETO_SUSTENTABILIDADE.xlS")
 Dados_Clima <- readxl::read_excel("Dados_Clima.xlS")
@@ -940,9 +933,8 @@ Dados_Clima <- readxl::read_excel("Dados_Clima.xlS")
     subset(data, MUNICIPIO == input$municipio & CNH == input$cnh & P21 == input$destino)
   })
  
-  
   filtered_ciretran_data <- reactive({
-    subset(Dados_Clima, MUNICIPIO == input$municipio & GENERO == input$GENERO)
+    subset(Dados_Clima, MUNICIPIO == input$municipio & CNH == input$cnh & P21 == input$destino)
   })
   
   # Função para criar o gráfico com porcentagens e ordenação
@@ -956,7 +948,6 @@ Dados_Clima <- readxl::read_excel("Dados_Clima.xlS")
       factor(data[[x_var]]) # Ordem original
     }
   
-  
 # Função para criar gráficos de barras com percentuais
  #plot_with_percent <- function(data, x_var, fill_var, title) {
     ggplot(data, aes_string(x = x_var, fill = fill_var)) +
@@ -966,15 +957,11 @@ Dados_Clima <- readxl::read_excel("Dados_Clima.xlS")
       labs(title = title, x = "", y = "Nº de Entrevistados") +
       theme_gray()
   }
- 
-
-  
   # Socio-Econômico
   output$sexoPlot <- renderPlotly({
     ggplotly(plot_with_percent(filtered_data(), "SEXO", "SEXO", "", order = "asc"),
              )
-    
-  })
+    })
   
   output$racaPlot <- renderPlotly({
     ggplotly(plot_with_percent(filtered_data(), "RACA", "RACA", "", order = "asc" ))
@@ -999,9 +986,8 @@ Dados_Clima <- readxl::read_excel("Dados_Clima.xlS")
   output$cargoPlot <- renderPlotly({
     ggplotly(plot_with_percent(filtered_data(), "CARGO_FUNCAO", "CARGO_FUNCAO", "")+
                coord_flip()
-             
              )
-  })
+    })
   
   output$cnhPlot <- renderPlotly({
     ggplotly(plot_with_percent(filtered_data(), "CNH", "CNH", ""))
@@ -1012,7 +998,6 @@ Dados_Clima <- readxl::read_excel("Dados_Clima.xlS")
              coord_flip()
              )
   })
-
 #------------------------------------------------------------------------------#  
   
   
@@ -1050,50 +1035,238 @@ Dados_Clima <- readxl::read_excel("Dados_Clima.xlS")
   output$destinoFinalLixoPlot <- renderPlotly({
     ggplotly(plot_with_percent(filtered_data(), "P20", "P20", ""))
   })
-  
 #===============================================================================#
   
- #==============================================================================
+
+#===============================================================================#
+# GRÁFICO Escala Likert
+  my.render.cont <- function(x) {
+    with(stats.apply.rounding(stats.default(x), digits=2), 
+         c("", "Mean (SD)"=sprintf("%s (&plusmn; %s)", MEAN, SD)))
+  }
+  my.render.cat <- function(x) {
+    c("", sapply(stats.default(x), 
+                 function(y) with(y,
+                                  sprintf("%d (%0.0f %%)", FREQ, PCT))))
+  }
+  
+  pvalue <- function(x, ...) {
+    # Construct vectors of data y, and groups (strata) g
+    y <- unlist(x)
+    g <- factor(rep(1:length(x), times=sapply(x, length)))
+    if (is.numeric(y)) {
+      # For numeric variables, perform a standard 2-sample t-test
+      p <- t.test(y ~ g)$p.value
+    } else {
+      # For categorical variables, perform a chi-squared test of independence
+      p <- chisq.test(table(y, g))$p.value
+    }
+    # Format the p-value, using an HTML entity for the less-than sign.
+    # The initial empty string places the output on the line below the variable label.
+    c("", sub("<", "&lt;", format.pval(p, digits=3, eps=0.001)))
+  }
   
   
-  
-  
-  output$likertPlot <- renderPlotly({
+  output$likertPlot1 <- renderPlotly({
     
-    Dados_Clima[,1:9] <- lapply(Dados_Clima[,1:9], 
-                                factor, 
-                                levels = 1:5,
-                                labels = c("Sempre", 
-                                           "Quase Sempre", 
-                                           "Raramente", 
-                                           "Nunca", 
-                                           "Não Tenho Opnião"),
-                                order = TRUE)
-   
+  dados_filtrados <- Dados_Clima %>%
+    filter(MUNICIPIO == input$municipio & CNH == input$cnh & P21 == input$destino)
+
+  dados_filtrados[,1:9] <- lapply(dados_filtrados[,1:9], 
+                                  factor, 
+                                  levels = 1:2,
+                                  labels = c("Sim", 
+                                             "Não"),
+                                  order = TRUE)
+  
+  nomes <- read_excel("Dados_Clima.xls", sheet = 3)
+  colnames(Dados_Clima)[1:9] <- nomes$Nomes
+  
+  caption  <- "Pesquisa Sustentabilidade"
+  footnote <- "Fonte: CGP/DETRAN-PA"
+  
+  table1(~., 
+         data = dados_filtrados,
+         #ctable = TRUE,
+         overall = "n(%)",
+         #overall = F,
+         #decimal.mark = ",",
+         caption = caption, 
+         footnote = footnote,
+         #topclass="Rtable1-grid Rtable1-shade Rtable1-times",
+         topclass = "Rtable1-zebra",
+         #render.continuous=my.render.cont,
+         #render.categorical=my.render.cat
+         #extra.col=list(`P-value`=pvalue)
+  )
+  dados_grafico <- likert(as.data.frame(dados_filtrados[1:9]))
+  
+  paleta <- brewer.pal(5, "RdBu")
+  paleta[3] <- "#DFDFDF"
+  
+  
+  g1 <- likert.bar.plot(dados_grafico, text.size = 4, hjust = 0.5) +
+    theme(axis.text.y = element_text(size = 12)) +
+    labs(x = "Perguntas", 
+         y = "Frequência (%)") +
+    ggtitle("Percepção Sobre Sustentabilidade Geral") +
+    scale_fill_manual(values = paleta, 
+                      breaks = levels(Dados_Clima$`Q1(16)`)) +
+    guides(fill = guide_legend(title = "Resposta")) +
+    theme_gray() +
+    theme(
+      panel.grid = element_blank(),
+      plot.background = element_rect(fill = "white"),
+      plot.title = element_text(hjust = 0.5)  # Centers the title
+    )
+  ggplotly(g1)
+  })
+#-------------------------------------------------------------------------------#
+  
+  
+  output$likertPlot2 <- renderPlotly({
     
-    dados_grafico <- likert(as.data.frame(Dados_Clima[1:9]))
+    dados_filtrados <- Dados_Clima %>%
+      filter(MUNICIPIO == input$municipio & CNH == input$cnh & P21 == input$destino)
+    
+    dados_filtrados[,1:9] <- lapply(dados_filtrados[,1:9], 
+                                    factor, 
+                                    levels = 1:2,
+                                    labels = c("Sim", 
+                                               "Não"),
+                                    order = TRUE)
+    
+    nomes <- read_excel("Dados_Clima.xls", sheet = 3)
+    colnames(Dados_Clima)[1:9] <- nomes$Nomes
+    
+    caption  <- "Pesquisa Sustentabilidade"
+    footnote <- "Fonte: CGP/DETRAN-PA"
+    
+    table1(~., 
+           data = dados_filtrados,
+           #ctable = TRUE,
+           overall = "n(%)",
+           #overall = F,
+           #decimal.mark = ",",
+           caption = caption, 
+           footnote = footnote,
+           #topclass="Rtable1-grid Rtable1-shade Rtable1-times",
+           topclass = "Rtable1-zebra",
+           #render.continuous=my.render.cont,
+           #render.categorical=my.render.cat
+           #extra.col=list(`P-value`=pvalue)
+    )
+    dados_grafico2_grupo <- likert(as.data.frame(dados_filtrados[1:9]),
+                            grouping = dados_filtrados$GENERO)
     
     paleta <- brewer.pal(5, "RdBu")
     paleta[3] <- "#DFDFDF"
     
     
-    g1 <- likert.bar.plot(dados_grafico, text.size=4)+
-      theme(axis.text.y=element_text(size="12"))+
-      labs(x="", y = "Frequência (%)", size=12)+
-      ggtitle("Percepção sobre Sustentabilidade")+
-      scale_fill_manual(values = paleta,
-                        breaks = levels(Dados_Clima$`Q1(16)`))+
-      guides(fill = guide_legend(title = "Resposta"))+
-      theme_minimal()+
-      theme(panel.grid = element_blank(),
-            plot.background = element_rect(fill = "white"))
-    ggplotly(g1)
-    
-  
+    g2 <- likert.bar.plot(dados_grafico2_grupo, text.size = 4, hjust = 0.5) +
+      theme(axis.text.y = element_text(size = 12)) +
+      labs(x = "Perguntas", 
+           y = "Frequência (%)") +
+      ggtitle("Percepção Sobre Sustentabilidade por Gênero") +
+      scale_fill_manual(values = paleta, 
+                        breaks = levels(dados_filtrados$`Seu Bairro Têm Coleta Seletiva?` )) +
+      guides(fill = guide_legend(title = "Resposta")) +
+      theme_gray() +
+      theme(
+        panel.grid = element_blank(),
+        plot.background = element_rect(fill = "white"),
+        plot.title = element_text(hjust = 0.5)  # Centers the title
+      )
+    ggplotly(g2)
   })
   
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+#------------------------------------------------------------------------------#
+# Tabela Escala Likert
+output$tablikertPlot <- renderTable({
+  Dados_Clima[,1:9] <- lapply(Dados_Clima[,1:9], 
+                              factor, 
+                              levels = 1:2,
+                              labels = c("Sim", 
+                                         "Não"),
+                              order = TRUE)
+  
+  
+  #Definir Tipos de variáveis
+  my.render.cont <- function(x) {
+    with(stats.apply.rounding(stats.default(x), digits=2), 
+         c("", "Mean (SD)"=sprintf("%s (&plusmn; %s)", MEAN, SD)))}
+  my.render.cat <- function(x) {
+    c("", sapply(stats.default(x), 
+                 function(y) with(y,
+                                  sprintf("%d (%0.0f %%)", FREQ, PCT))))}
+  
+  # Função Calcular P-valor das variáveis:contínuas/categóricas.
+  pvalue <- function(x, ...) {
+    y <- unlist(x)
+    g <- factor(rep(1:length(x), times=sapply(x, length)))
+    if (is.numeric(y)) {
+      p <- t.test(y ~ g)$p.value
+    } else {
+      p <- chisq.test(table(y, g))$p.value
+    }
+    c("", sub("<", "&lt;", format.pval(p, digits=3, eps=0.001)))
+  }  
+  
+  #Tabela dos Itens 
+  caption  <- "Percepção sobre Sustentabilidade"
+  footnote <- "Fonte: CGP/DETRAN-PA"
+  
+  table1(~., 
+         data = Dados_Clima,
+         #ctable = TRUE,
+         overall = "n(%)",
+         #overall = F,
+         #decimal.mark = ",",
+         caption = caption, 
+         footnote = footnote,
+         #topclass="Rtable1-grid Rtable1-shade Rtable1-times",
+         topclass = "Rtable1-zebra",
+         #render.continuous=my.render.cont,
+         #render.categorical=my.render.cat
+         #extra.col=list(`P-value`=pvalue)
+  )
+})
   observeEvent(input$reset_button, {
     updateSelectInput(session, "municipio", selected = "Altamira")
     updateSelectInput(session, "cnh", selected = "Sim")
