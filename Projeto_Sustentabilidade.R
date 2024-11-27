@@ -75,7 +75,8 @@ ui <- dashboardPage(
       menuItem("DESTINO LIXO", tabName = "ciretran", icon = icon("recycle")),
       menuItem("PERCEPÇÃO", tabName = "escalalikert", icon = icon("book"),
                menuSubItem("Percepção Geral", tabName = "likertgeral", icon = icon("book")),
-               menuSubItem("Percepção po Gênero", tabName = "likertgenero", icon = icon("book"))
+               menuSubItem("Percepção Por Gênero", tabName = "likertgenero", icon = icon("book")),
+               menuSubItem("Percepção Por Município", tabName = "likertmunic", icon = icon("book"))
                
                ),
       selectInput("municipio", "MUNICÍPIOS:",
@@ -788,7 +789,7 @@ tabItem(
            icon = icon("address-card"),
         fluidRow(
           box( width = 8,
-            title = tags$div("PERCPÇÃO SOBRE SUSTENTABILIDADE GERAL",
+            title = tags$div("PERCPÇÃO SUSTENTABILIDADE GERAL",
                              style = "text-align: center"),
               status = "success", 
               solidHeader = TRUE,
@@ -808,7 +809,7 @@ tabItem(
            fluidRow(
              box(
                width = 8,
-               title = "PERCEPÇÃO SOBRE SUSTENTABILIDADE POR GÊNERO",
+               title = "PERCEPÇÃO SUSTENTABILIDADE POR GÊNERO",
                style = "text-align: center",
                status = "success",
                solidHeader = TRUE,
@@ -824,7 +825,34 @@ tabItem(
              )
            )
   )
+),
+
+
+tabItem(
+  tabName = "likertmunic",
+  tabPanel("Escala Likert Município",
+           icon = icon("address-card"),   
+           fluidRow(
+             box(
+               width = 8,
+               title = "Percepção Sustentabilidade Por Município",
+               style = "text-align: center",
+               status = "success",
+               solidHeader = TRUE,
+               collapsible = TRUE,
+               headerBorder = TRUE,
+               div(class = "elemente",
+                   plotlyOutput("likertPlot3",
+                                width = 800,
+                                height = 700
+                   )
+               )
+               
+             )
+           )
+  )
 )
+
     ),
 )
 )
@@ -1066,13 +1094,15 @@ Dados_Clima <- readxl::read_excel("Dados_Clima.xlS")
     c("", sub("<", "&lt;", format.pval(p, digits=3, eps=0.001)))
   }
   
-  
+
+#-------------------------------------------------------------------------------
+# Escala Likert
   output$likertPlot1 <- renderPlotly({
     
   dados_filtrados <- Dados_Clima %>%
     filter(MUNICIPIO == input$municipio & CNH == input$cnh & P21 == input$destino)
 
-  dados_filtrados[,1:9] <- lapply(dados_filtrados[,1:9], 
+  Dados_Clima[,1:9] <- lapply(Dados_Clima[,1:9], 
                                   factor, 
                                   levels = 1:2,
                                   labels = c("Sim", 
@@ -1081,12 +1111,13 @@ Dados_Clima <- readxl::read_excel("Dados_Clima.xlS")
   
   nomes <- read_excel("Dados_Clima.xls", sheet = 3)
   colnames(Dados_Clima)[1:9] <- nomes$Nomes
+  table1(~., data = Dados_Clima, overall = "n(%)", decimal.mark = ",")
   
   caption  <- "Pesquisa Sustentabilidade"
   footnote <- "Fonte: CGP/DETRAN-PA"
   
   table1(~., 
-         data = dados_filtrados,
+         data = Dados_Clima,
          #ctable = TRUE,
          overall = "n(%)",
          #overall = F,
@@ -1099,22 +1130,25 @@ Dados_Clima <- readxl::read_excel("Dados_Clima.xlS")
          #render.categorical=my.render.cat
          #extra.col=list(`P-value`=pvalue)
   )
-  dados_grafico <- likert(as.data.frame(dados_filtrados[1:9]))
+  
+  dados_grafico <- likert(as.data.frame(Dados_Clima[1:9]))
   
   paleta <- brewer.pal(5, "RdBu")
   paleta[3] <- "#DFDFDF"
   
   
-  g1 <- likert.bar.plot(dados_grafico, text.size = 4, hjust = 0.5) +
-    theme(axis.text.y = element_text(size = 12)) +
-    labs(x = "Perguntas", 
-         y = "Frequência (%)") +
-    ggtitle("Percepção Sobre Sustentabilidade Geral") +
+  g1 <- likert.bar.plot(dados_grafico,
+                        text.size = 4, 
+                        hjust = 1) +
+    labs(x = "", 
+         y = "FREQUÊNCIA (%)") +
+    ggtitle("") +
     scale_fill_manual(values = paleta, 
-                      breaks = levels(Dados_Clima$`Q1(16)`)) +
-    guides(fill = guide_legend(title = "Resposta")) +
-    theme_gray() +
+                      breaks = levels(Dados_Clima$`Sabe Qual o Destino do Lixo da Ciretran?` )) +
+    guides(fill = guide_legend(title = "CATEGORIAS")) +
+    theme_gray(base_size = 12) +
     theme(
+      axis.text.y = element_text(size = 8),
       panel.grid = element_blank(),
       plot.background = element_rect(fill = "white"),
       plot.title = element_text(hjust = 0.5)  # Centers the title
@@ -1124,61 +1158,55 @@ Dados_Clima <- readxl::read_excel("Dados_Clima.xlS")
 #-------------------------------------------------------------------------------#
   
   
+#-------------------------------------------------------------------------------
+# Escala Likert GENERO
   output$likertPlot2 <- renderPlotly({
     
-    dados_filtrados <- Dados_Clima %>%
+    dados_filtrados2 <- Dados_Clima %>%
       filter(MUNICIPIO == input$municipio & CNH == input$cnh & P21 == input$destino)
     
-    dados_filtrados[,1:9] <- lapply(dados_filtrados[,1:9], 
-                                    factor, 
-                                    levels = 1:2,
-                                    labels = c("Sim", 
-                                               "Não"),
-                                    order = TRUE)
+    Dados_Clima[,1:9] <- lapply(Dados_Clima[,1:9], 
+                                factor, 
+                                levels = 1:2,
+                                labels = c("Sim", 
+                                           "Não"),
+                                order = TRUE)
     
     nomes <- read_excel("Dados_Clima.xls", sheet = 3)
     colnames(Dados_Clima)[1:9] <- nomes$Nomes
+    table1(~., data = Dados_Clima, overall = "n(%)", decimal.mark = ",")
     
     caption  <- "Pesquisa Sustentabilidade"
     footnote <- "Fonte: CGP/DETRAN-PA"
+  
     
-    table1(~., 
-           data = dados_filtrados,
-           #ctable = TRUE,
-           overall = "n(%)",
-           #overall = F,
-           #decimal.mark = ",",
-           caption = caption, 
-           footnote = footnote,
-           #topclass="Rtable1-grid Rtable1-shade Rtable1-times",
-           topclass = "Rtable1-zebra",
-           #render.continuous=my.render.cont,
-           #render.categorical=my.render.cat
-           #extra.col=list(`P-value`=pvalue)
-    )
-    dados_grafico2_grupo <- likert(as.data.frame(dados_filtrados[1:9]),
-                            grouping = dados_filtrados$GENERO)
+    dados_grafico2 <- likert(as.data.frame(Dados_Clima[1:9]),
+                             grouping = Dados_Clima$GENERO
+                             )
     
     paleta <- brewer.pal(5, "RdBu")
     paleta[3] <- "#DFDFDF"
     
     
-    g2 <- likert.bar.plot(dados_grafico2_grupo, text.size = 4, hjust = 0.5) +
-      theme(axis.text.y = element_text(size = 12)) +
-      labs(x = "Perguntas", 
-           y = "Frequência (%)") +
-      ggtitle("Percepção Sobre Sustentabilidade por Gênero") +
+    g2 <- likert.bar.plot(dados_grafico2,
+                          text.size = 4, 
+                          hjust = 1) +
+      labs(x = "", 
+           y = "FREQUÊNCIA (%)") +
+      ggtitle("") +
       scale_fill_manual(values = paleta, 
-                        breaks = levels(dados_filtrados$`Seu Bairro Têm Coleta Seletiva?` )) +
-      guides(fill = guide_legend(title = "Resposta")) +
-      theme_gray() +
+                        breaks = levels(Dados_Clima$Q20 )) +
+      guides(fill = guide_legend(title = "CATEGORIAS")) +
+      theme_gray(base_size = 12) +
       theme(
+        axis.text.y = element_text(size = 8),
         panel.grid = element_blank(),
         plot.background = element_rect(fill = "white"),
         plot.title = element_text(hjust = 0.5)  # Centers the title
       )
     ggplotly(g2)
   })
+  #-------------------------------------------------------------------------------#
   
   
   
@@ -1204,18 +1232,7 @@ Dados_Clima <- readxl::read_excel("Dados_Clima.xlS")
   
   
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
 #------------------------------------------------------------------------------#
 # Tabela Escala Likert
 output$tablikertPlot <- renderTable({
