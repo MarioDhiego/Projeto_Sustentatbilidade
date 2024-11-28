@@ -787,7 +787,7 @@ tabItem(
   tabPanel("Escala Likert",
            icon = icon("address-card"),
         fluidRow(
-          box( width = 10,
+          box( width = 12,
             title = tags$div("PERCEPÇÃO SUSTENTABILIDADE GERAL",
                              style = "text-align: center"),
               status = "success", 
@@ -807,7 +807,7 @@ tabItem(
            icon = icon("address-card"),   
            fluidRow(
              box(
-               width = 10,
+               width = 12,
                title = "PERCEPÇÃO SUSTENTABILIDADE POR GÊNERO",
                style = "text-align: center",
                status = "success",
@@ -833,7 +833,7 @@ tabItem(
            icon = icon("address-card"),   
            fluidRow(
              box(
-               width = 10,
+               width = 12,
                title = "Percepção Sustentabilidade Por Município",
                style = "text-align: center",
                status = "success",
@@ -952,7 +952,7 @@ Q-->R[SÃO FÉLIX]
 setwd("C:/Users/mario.valente/Documents/github_2024/Projeto_Sustentatbilidade-main")
 
 data <- readxl::read_excel("BANCO_PROJETO_SUSTENTABILIDADE.xlsx")
-Dados_Clima <- readxl::read_excel("Dados_Clima.xlS")
+Dados_Clima <- readxl::read_excel("Dados_Clima.xls")
 #------------------------------------------------------------------------------#
 
   # Filtrar dados com base no município selecionado
@@ -1123,23 +1123,32 @@ Dados_Clima <- readxl::read_excel("Dados_Clima.xlS")
   
   
   g1 <- likert.bar.plot(dados_grafico,
-                        text.size = 3, 
-                        hjust = 1) +
-    labs(x = "", 
-         y = "FREQUÊNCIA (%)") +
+                        wrap = 20,
+                        centered = TRUE,
+                        text.size = 4, 
+                        hjust = 0.5,
+                        legend = "Escala Likert",
+                        legend.position = "right",
+                        ordered = TRUE) +
     ggtitle("") +
+    labs(x = "PERGUNTAS", 
+         y = "FREQUÊNCIA (%)") +
     scale_fill_manual(values = paleta, 
                       breaks = levels(Dados_Clima$`Sabe Qual o Destino do Lixo da Ciretran?` )) +
     guides(fill = guide_legend(title = "Escala Likert")) +
     theme_gray(base_size = 12) +
     theme(
-      axis.text.y = element_text(size = 7),
+      axis.text.y = element_text(size = 9),
       panel.grid = element_blank(),
       plot.background = element_rect(fill = "white"),
       plot.title = element_text(hjust = 0.5)  # Centers the title
     )
   ggplotly(g1)
   })
+  
+
+
+
 #-------------------------------------------------------------------------------#
   
   
@@ -1175,15 +1184,19 @@ Dados_Clima <- readxl::read_excel("Dados_Clima.xlS")
     
     
     g2 <- likert.bar.plot(dados_grafico2,
+                          centered = TRUE,
                           text.size = 3, 
-                          hjust = 1) +
-      labs(x = "", 
+                          hjust = 1,
+                          legend = "Escala Likert",
+                          legend.position = "right",
+                          ordered = TRUE) +
+      ggtitle("PERGUNTAS") +
+      labs(x = "GÊNERO", 
            y = "FREQUÊNCIA (%)") +
-      ggtitle("") +
       scale_fill_manual(values = paleta, 
                         breaks = levels(Dados_Clima$Q20 )) +
       guides(fill = guide_legend(title = "Escala Likert")) +
-      theme_gray(base_size = 12) +
+      theme_gray() +
       theme(
         axis.text.y = element_text(size = 7),
         panel.grid = element_blank(),
@@ -1227,11 +1240,12 @@ Dados_Clima <- readxl::read_excel("Dados_Clima.xlS")
     
     
     g3 <- likert.bar.plot(dados_grafico3,
+                          #wrap = 50,
                           text.size = 3, 
                           hjust = 1) +
-      labs(x = "", 
+      ggtitle("PERGUNTAS") +
+      labs(x = "MUNICÍPIO", 
            y = "FREQUÊNCIA (%)") +
-      ggtitle("") +
       scale_fill_manual(values = paleta, 
                   breaks = levels(Dados_Clima$`Seu Bairro Têm Coleta Seletiva?` )) +
       guides(fill = guide_legend(title = "Escala Likert")) +
@@ -1240,7 +1254,9 @@ Dados_Clima <- readxl::read_excel("Dados_Clima.xlS")
         axis.text.y = element_text(size = 7),
         panel.grid = element_blank(),
         plot.background = element_rect(fill = "white"),
-        plot.title = element_text(hjust = 0.5)  # Centers the title
+        plot.title = element_text(hjust = 0.5, 
+                                  color = "white", 
+                                  size = 10)  # Centers the title
       )
     ggplotly(g3)
   })
