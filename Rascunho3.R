@@ -177,18 +177,21 @@ ui <- dashboardPage(
       ),
       tabItem(
         tabName = "likertgeral",
-        tabPanel("Escala Likert",
+        tabPanel("Escala Likert Geral",
                  icon = icon("address-card"),
                  fluidRow(
                    box( width = 12,
-                        title = tags$div("PERCEPÇÃO SUSTENTABILIDADE GERAL",
-                                         style = "text-align: center"),
-                        status = "success", 
+                        title = "",
+                        status = "success",
                         solidHeader = TRUE,
                         collapsible = TRUE,
-                        plotlyOutput("likertPlot1",
-                                     width = 800,
-                                     height = 700)
+                        headerBorder = TRUE,
+                        tags$div(
+                          style = "display: flex; justify-content: center; align-items: center;",
+                          plotlyOutput("likertPlot1",
+                                       width = 800,
+                                       height = 700)
+                        )
                    )
                  )
         )
@@ -200,17 +203,17 @@ ui <- dashboardPage(
                  fluidRow(
                    box(
                      width = 12,
-                     title = "PERCEPÇÃO SUSTENTABILIDADE POR GÊNERO",
+                     title = "Percepção Sustentabilidade por Gênero",
                      style = "text-align: center",
                      status = "success",
                      solidHeader = TRUE,
                      collapsible = TRUE,
                      headerBorder = TRUE,
-                     div(class = "elemente",
-                         plotlyOutput("likertPlot2",
-                                      width = 800,
-                                      height = 700
-                         )
+                     tags$div(
+                       style = "display: flex; justify-content: center; align-items: center;",
+                       plotlyOutput("likertPlot2",
+                                    width = 800,
+                                    height = 700)
                      )
                      
                    )
@@ -383,6 +386,7 @@ server <- function(input, output, session) {
   })
   
   # Tabela de Escolaridade com a média de IDADE e total
+  
   output$tabelaEscolaridade <- DT::renderDataTable({
     req(nrow(filtered_data()) > 0)
     
@@ -400,6 +404,20 @@ server <- function(input, output, session) {
         Media_Idade = round(mean(IDADE, na.rm = TRUE), 1)  # Arredondando a média de idade para 1 casa decimal
       ) %>%
       rename("Escolaridade" = ESCOLARIDADE)
+    
+    # Substituições nos valores da coluna "Escolaridade"
+    escolaridade_count <- escolaridade_count %>%
+      mutate(Escolaridade = case_when(
+        Escolaridade == "EFI" ~ "Ensino Fundamental Incompleto",
+        Escolaridade == "EMI" ~ "Ensino Médio Incompleto",
+        Escolaridade == "EMC" ~ "Ensino Médio Completo",
+        Escolaridade == "ESC" ~ "Ensino Superior Completo",
+        Escolaridade == "ESI" ~ "Ensino Superior Incompleto",
+        Escolaridade == "PÓS" ~ "Pós-Graduação",
+        TRUE ~ Escolaridade  # Mantém o valor original para outros casos
+      ))
+    
+    
     
     # Adicionar a linha de total
     total_row <- tibble(
@@ -422,6 +440,16 @@ server <- function(input, output, session) {
       rownames = FALSE
     )
   })
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   # Gráfico de Estado Civil
   output$estadoCivilPlot <- renderPlotly({
@@ -521,7 +549,7 @@ server <- function(input, output, session) {
       labs(x = "PERGUNTAS", y = "FREQUÊNCIA (%)") +
       scale_fill_manual(values = paleta) +
       guides(fill = guide_legend(title = "Escala Likert")) +
-      theme_gray(base_size = 12) +
+      theme_bw(base_size = 12)+
       theme(
         axis.text.y = element_text(size = 9),
         panel.grid = element_blank(),
@@ -529,7 +557,12 @@ server <- function(input, output, session) {
         plot.title = element_text(hjust = 0.5)  # Centraliza o título
       )
     
-    ggplotly(g1)
+    ggplotly(g1) %>%
+      layout(
+        width = 800,  # Largura
+        height = 650,  # Altura
+        margin = list(l = 60, r = 80, t = 50, b = 100)  # Ajuste das margens internas
+      )
   })
   
 
@@ -581,7 +614,7 @@ server <- function(input, output, session) {
       scale_fill_manual(values = paleta, 
                         breaks = levels(Dados_Clima$Q9)) +
       guides(fill = guide_legend(title = "Escala Likert")) +
-      theme_gray() +
+      theme_bw()+
       theme(
         axis.text.y = element_text(size = 7),
         panel.grid = element_blank(),
@@ -590,9 +623,7 @@ server <- function(input, output, session) {
       )
     ggplotly(g2)
   })
-  
-  
-  
+ 
 }
 
 # ======================================================================================================#
