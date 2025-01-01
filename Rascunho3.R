@@ -12,6 +12,7 @@ library(shinycssloaders)
 library(ggplot2)
 library(plotly)
 library(leaflet)
+library(tidygeocoder)
 library(likert)
 library(scales) 
 library(htmlwidgets)
@@ -24,7 +25,9 @@ library(haven)
 library(DiagrammeR) 
 library(rlang)
 library(forcats)
-library(DT)  # Para renderizar a mini-tabela
+library(DT)  
+library(openrouteservice)
+library(osrm)
 # ======================================================================================================#
 
 # Função para criar gráficos dinâmicos reutilizáveis
@@ -88,7 +91,10 @@ ui <- dashboardPage(
       height = 150
     ),
     sidebarMenu(
-      #menuItem("Sobre Projeto", tabName = "sobre", icon = icon("book")),
+      menuItem("PROJETO", tabName = "defprojeto", icon = icon("book"),
+               menuSubItem("Sobre Projeto", tabName="sobre1", icon=icon("book")),
+               menuSubItem("Localização", tabName="local1", icon=icon("video"))
+      ),
       menuItem("SÓCIOECONÔMICO", tabName = "analises", icon = icon("chart-bar")),
       menuItem("PERCEPÇÃO", tabName = "escalalikert", icon = icon("book"),
                menuSubItem("Percepção Geral", tabName = "likertgeral", icon = icon("book")),
@@ -218,6 +224,19 @@ ui <- dashboardPage(
                      
                    )
                  )
+        )
+      ),
+      tabItem(
+        tabName = "local1",
+        tabPanel(
+          title = "Mapa",
+          fluidRow(
+            column(12,
+                   h3("Mapa de Municípios"),
+                   leafletOutput("mapa_municipios",
+                                 height = 700)  # Mapa interativo
+            )
+          )
         )
       )
       
@@ -458,7 +477,7 @@ server <- function(input, output, session) {
     municipio_selecionado <- input$municipio  # Pega o nome do município selecionado
     
     # Modificar o título para incluir o nome do município
-    titulo <- paste("Distribuição por Estado Civil em", municipio_selecionado)
+    titulo <- paste("Município de ", municipio_selecionado)
     
     ggplotly(gerar_grafico(filtered_data(), "ESTADO_CIVIL", "ESTADO_CIVIL", titulo, order = "asc"))
   })
@@ -545,7 +564,7 @@ server <- function(input, output, session) {
                           legend = "Escala Likert",
                           legend.position = "right",
                           ordered = TRUE) +
-      ggtitle("") +
+      ggtitle("Percepção Sustentabilidade Geral") +
       labs(x = "PERGUNTAS", y = "FREQUÊNCIA (%)") +
       scale_fill_manual(values = paleta) +
       guides(fill = guide_legend(title = "Escala Likert")) +
@@ -608,7 +627,7 @@ server <- function(input, output, session) {
                           legend = "Escala Likert",
                           legend.position = "right",
                           ordered = TRUE) +
-      ggtitle("PERGUNTAS") +
+      ggtitle("Percepção Sustentabilidade por Gênero") +
       labs(x = "GÊNERO", 
            y = "FREQUÊNCIA (%)") +
       scale_fill_manual(values = paleta, 
@@ -624,6 +643,51 @@ server <- function(input, output, session) {
     ggplotly(g2)
   })
  
+  # Renderiza o mapa interativo
+  
+  
+  dados_cidades <- data.frame(
+    municipio = c("Altamira", "Marabá", "Castanhal"),
+    latitude = c(-3.1999, -5.3802, -1.2961),
+    longitude = c(-52.2097, -49.1251, -47.9223)
+  )
+  
+  output$mapa_municipios <- renderLeaflet({
+    
+    # Criar o mapa com base nas coordenadas das cidades
+    mapa <- leaflet(dados_cidades) %>%
+      addTiles(options = leafletOptions(minZoom = 2, maxZoom = 16)) %>%
+      addProviderTiles(providers$Esri.NatGeoWorldMap, options = providerTileOptions(noWrap = TRUE)) %>%
+      addCircleMarkers(lng = ~longitude, 
+                       lat = ~latitude,     # Coordenadas dos municípios
+                       radius = 8, color = "blue", 
+                       popup = ~municipio)  # Exibe o nome do município ao clicar
+  
+    
+    # Adicionar rota entre as cidades (Polylines)
+    mapa <- mapa %>%
+      addPolylines(
+        lng = c(dados_cidades$long[1], dados_cidades$long[2], dados_cidades$long[3]), 
+        lat = c(dados_cidades$lat[1], dados_cidades$lat[2], dados_cidades$lat[3]),
+        color = "blue",
+        weight = 3,
+        opacity = 0.7
+      )
+  
+    
+    
+    
+   
+    
+    })
+
+
+  
+  
+  
+  
+  
+  
 }
 
 # ======================================================================================================#
