@@ -70,31 +70,21 @@ ui <- dashboardPage(
     tags$li(
       class = "dropdown",
       style = "margin-right: 15px; display: inline-block;",  
-    a(href = "https://www.facebook.com/detranPARA", 
-      class = "fa fa-facebook fa-lg", 
-      target = "_blank", 
-      title = "Facebook", 
-      style = "color: #3b5998; transition: color 0.3s;"),
+a(href = "https://www.facebook.com/detranPARA", class = "fa fa-facebook fa-lg", target = "_blank", title = "Facebook", style = "color: #3b5998; transition: color 0.3s;"),
     tags$style(HTML("
       .fa-facebook:hover {
         color: #8b9dc3;
       }
-    "))
-    ),
+    "))),
     tags$li(
       class = "dropdown",
       style = "margin-right: 15px; display: inline-block;", 
-      a(href = "https://www.instagram.com/detranpa_", 
-        class = "fa fa-instagram", 
-        target = "_blank", 
-        title = "InstaGram",
-        style = "color: #e1306c; transition: color 0.3s;"),
+  a(href = "https://www.instagram.com/detranpa_", class = "fa fa-instagram", target = "_blank", title = "InstaGram",style = "color: #e1306c; transition: color 0.3s;"),
       tags$style(HTML("
       .fa-instagram:hover {
         color: #fd1d1d;
       }
-    "))
-    ),
+    "))),
     tags$li(
       class = "dropdown",
       style = "margin-right: 15px; display: inline-block;", 
@@ -107,8 +97,7 @@ ui <- dashboardPage(
       .fa-twitter:hover {
         color: #0d95e8;
       }
-    "))
-    ),
+    "))),
     tags$li(
       class = "dropdown",
       style = "margin-right: 15px; display: inline-block;", 
@@ -121,35 +110,26 @@ ui <- dashboardPage(
       .fa-github:hover {
         color: #6e6e6e;
       }
-    "))
-    )
-  ),
+    ")))),
   dashboardSidebar(
     minified = FALSE,
     collapsed = FALSE,
     tags$img(
       src = "detran1.jpeg",
       width = 230,
-      height = 150
-    ),
+      height = 150),
     sidebarMenu(
       menuItem("PROJETO", tabName = "defprojeto", icon = icon("book"),
                menuSubItem("Sobre Projeto", tabName="sobre1", icon=icon("book")),
-               menuSubItem("Localização", tabName="local1", icon=icon("video"))
-      ),
+               menuSubItem("Localização", tabName="local1", icon=icon("video"))),
       menuItem("SÓCIOECONÔMICO", tabName = "analises", icon = icon("chart-bar")),
       menuItem("PERCEPÇÃO", tabName = "escalalikert", icon = icon("book"),
                menuSubItem("Percepção Geral", tabName = "likertgeral", icon = icon("book")),
-               menuSubItem("Percepção Por Gênero", tabName = "likertgenero", icon = icon("book"))
-               
-      ),
+               menuSubItem("Percepção Por Gênero", tabName = "likertgenero", icon = icon("book"))),
       selectInput("municipio", "MUNICÍPIO:",
                   choices = NULL, # Carregado no server
-                  selected = NULL
-      ),
-      actionButton("reset_button", "Reiniciar Filtros", class = "btn-success")
-    )
-  ),
+                  selected = NULL),
+      actionButton("reset_button", "Reiniciar Filtros", class = "btn-success"))),
   dashboardBody(
     tabItems(
       tabItem(
@@ -157,8 +137,7 @@ ui <- dashboardPage(
         fluidRow(
           box(title = "Sobre o Projeto", width = 12, status = "info",
               "Esse é um aplicativo para análise de dados sobre sustentabilidade ambiental.")
-        )
-      ),
+        )),
       tabItem(
         tabName = "analises",
         fluidRow(
@@ -173,9 +152,7 @@ ui <- dashboardPage(
                        box(
                          title = "Medidas Resumo", width = 5, status = "success", solidHeader = TRUE,
                          collapsible = TRUE, DT::dataTableOutput("tabelaGenero") %>% withSpinner(color = "#28a745")
-                       )
-                     )
-            ),
+                       ))),
             tabPanel("Raça",
                      fluidRow(
                        box(
@@ -185,9 +162,7 @@ ui <- dashboardPage(
                        box(
                          title = "Medidas Resumo", width = 5, status = "success", solidHeader = TRUE,
                          collapsible = TRUE, DT::dataTableOutput("tabelaRaca") %>% withSpinner(color = "#17a2b8")
-                       )
-                     )
-            ),
+                       ))),
             tabPanel("Escolaridade",
                      fluidRow(
                        box(
@@ -197,9 +172,7 @@ ui <- dashboardPage(
                        box(
                          title = "Medidas Resumo", width = 5, status = "success", solidHeader = TRUE,
                          collapsible = TRUE, DT::dataTableOutput("tabelaEscolaridade") %>% withSpinner(color = "#ffc107")
-                       )
-                     )
-            ),
+                       ))),
             # Nova sub-aba para Estado Civil
             tabPanel("Estado Civil",
                      fluidRow(
@@ -217,12 +190,7 @@ ui <- dashboardPage(
                          collapsible = TRUE, 
                          DT::dataTableOutput("tabelaEstadoCivil") %>% 
                            withSpinner(color = "#007bff")
-                       )
-                     )
-            )
-          )
-        )
-      ),
+                       )))))),
       tabItem(
         tabName = "likertgeral",
         tabPanel("Escala Likert Geral",
@@ -239,11 +207,7 @@ ui <- dashboardPage(
                           plotlyOutput("likertPlot1",
                                        width = "auto",
                                        height = "auto")
-                        )
-                   )
-                 )
-        )
-      ),
+                        ))))),
       tabItem(
         tabName = "likertgenero",
         tabPanel("Escala Likert Gênero",
@@ -262,12 +226,7 @@ ui <- dashboardPage(
                        plotlyOutput("likertPlot2",
                                     width = 850,
                                     height = 900)
-                     )
-                     
-                   )
-                 )
-        )
-      ),
+                     ))))),
       tabItem(
         tabName = "local1",
         tabPanel(
@@ -277,13 +236,7 @@ ui <- dashboardPage(
                    h3("Mapa de Municípios"),
                    leafletOutput("mapa_municipios",
                                  height = 700)  # Mapa interativo
-            )
-          )
-        )
-      )
-    )
-  )
-)
+            )))))))
 
 # ======================================================================================================#
 # Servidor
@@ -564,7 +517,6 @@ server <- function(input, output, session) {
     updateSelectInput(session, "municipio",
                       selected = unique(data()$MUNICIPIO)[1])
   })
-  
 #------------------------------------------------------------------------------#  
 # Escala Likert
 
@@ -631,14 +583,9 @@ ggplotly(g1) %>%
     height = ifelse(is.null(altura), 750, altura),    # Altura dinâmica
     margin = list(l = 60, r = 80, t = 50, b = 100)   # Ajuste das margens internas
   )
-
   })
 #------------------------------------------------------------------------------#
-
-
-#------------------------------------------------------------------------------#
 # Escala Likert GENERO
-  
   output$likertPlot2 <- renderPlotly({
     
     # Filtrando os dados com base nos inputs
@@ -663,23 +610,14 @@ ggplotly(g1) %>%
     
     # Escala Likert p/ Gênero
     dados_grafico2 <- likert(as.data.frame(Dados_Clima[1:9]),
-                             grouping = Dados_Clima$GENERO
-    )
+                             grouping = Dados_Clima$GENERO)
+# Paleta de Cores
+paleta <- brewer.pal(n=5, "RdBu")
+paleta[3] <- "lightblue"
     
-    # Paleta de Cores
-    paleta <- brewer.pal(n=5, "RdBu")
-    paleta[3] <- "lightblue"
-    
-    # Gráfico Likert
-    g2 <- likert.bar.plot(dados_grafico2,
-                          wrap = 60,
-                          ReferenceZero = 3,
-                          centered = TRUE,
-                          text.size = 4, 
-                          hjust = 1,
-                          legend = "Escala Likert",
-                          legend.position = "right",
-                          ordered = TRUE) +
+# Gráfico Likert
+g2 <- likert.bar.plot(dados_grafico2,wrap = 60,ReferenceZero = 3,centered = TRUE,text.size = 4, hjust = 1,
+                     legend = "Escala Likert",legend.position = "right",ordered = TRUE) +
       ggtitle("") +
       labs(x = "", 
            y = "FREQUÊNCIA (%)") +
@@ -697,14 +635,9 @@ ggplotly(g1) %>%
     ggplotly(g2)
   })
  
-  # Renderiza o mapa interativo
-  
-  
-  dados_cidades <- data.frame(
-    municipio = c("Altamira", 
-                  "Marabá", 
-                  "Castanhal", 
-                  "Belém"),
+# Renderiza o mapa interativo
+dados_cidades <- data.frame(
+    municipio = c("Altamira", "Marabá", "Castanhal", "Belém"),
     latitude = c(-3.1999, 
                  -5.3802, 
                  -1.2961,
@@ -713,11 +646,8 @@ ggplotly(g1) %>%
                 -49.1251, 
                 -47.9223,
                 -48.4902
-                )
-  )
+                ))
 
-
-  
   # Coordenadas da rodovia (hipotéticas)
   rodovia_coords <- data.frame(
     latitude = c(-3.1999, 
@@ -727,14 +657,9 @@ ggplotly(g1) %>%
     longitude = c(-52.2097, 
                   -49.1251, 
                   -47.9223,
-                  -48.4902
-    )
-  )
+                  -48.4902))
   
-  
-  
-  
-  output$mapa_municipios <- renderLeaflet({
+output$mapa_municipios <- renderLeaflet({
     
     # Criar o mapa com base nas coordenadas das cidades
     mapa <- leaflet(dados_cidades) %>%
@@ -754,19 +679,7 @@ ggplotly(g1) %>%
         weight = 4,
         opacity = 1.2,
         popup = "Rodovia"
-      )
-    
-
-
-    })
-
-
-  
-  
-  
-  
-  
-  
+      )})
 }
 
 # ======================================================================================================#
