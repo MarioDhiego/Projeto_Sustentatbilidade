@@ -3,6 +3,7 @@
 library(readr)
 library(readxl)
 library(dplyr)
+library(curl)
 library(plyr)
 library(shiny)
 library(shinydashboard)
@@ -27,7 +28,8 @@ library(rlang)
 library(forcats)
 library(DT)  
 library(openrouteservice)
-library(osrm)
+library(osmdata)
+library(httr2)
 # ======================================================================================================#
 
 # Função para criar gráficos dinâmicos reutilizáveis
@@ -187,7 +189,7 @@ ui <- dashboardPage(
                  icon = icon("address-card"),
                  fluidRow(
                    box( width = 12,
-                        title = "",
+                        title = "Percepção de Sustentabilidade Geral",
                         status = "success",
                         solidHeader = TRUE,
                         collapsible = TRUE,
@@ -195,8 +197,8 @@ ui <- dashboardPage(
                         tags$div(
                           style = "display: flex; justify-content: center; align-items: center;",
                           plotlyOutput("likertPlot1",
-                                       width = 800,
-                                       height = 700)
+                                       width = "auto",
+                                       height = "auto")
                         )
                    )
                  )
@@ -209,7 +211,7 @@ ui <- dashboardPage(
                  fluidRow(
                    box(
                      width = 12,
-                     title = "Percepção Sustentabilidade por Gênero",
+                     title = "Percepção de Sustentabilidade por Gênero",
                      style = "text-align: center",
                      status = "success",
                      solidHeader = TRUE,
@@ -218,8 +220,8 @@ ui <- dashboardPage(
                      tags$div(
                        style = "display: flex; justify-content: center; align-items: center;",
                        plotlyOutput("likertPlot2",
-                                    width = 800,
-                                    height = 700)
+                                    width = 850,
+                                    height = 900)
                      )
                      
                    )
@@ -525,67 +527,83 @@ server <- function(input, output, session) {
   
   # Botão de reset
   observeEvent(input$reset_button, {
-    updateSelectInput(session, "municipio", selected = unique(data()$MUNICIPIO)[1])
+    updateSelectInput(session, "municipio",
+                      selected = unique(data()$MUNICIPIO)[1])
   })
   
-  # Escala Likert
-  output$likertPlot1 <- renderPlotly({
-    
-    # Filtrando os dados com base nos inputs
-    dados_filtrados <- Dados_Clima %>%
-      filter(MUNICIPIO == input$municipio)
-    
-    # Garantir que as colunas estão no formato de fator com níveis adequados
-    dados_filtrados[, 1:9] <- lapply(dados_filtrados[, 1:9], 
-                                     factor, 
-                                     levels = 1:3,
-                                     labels = c("Sim", 
-                                                "Não", 
-                                                "Não Sei Informar"),
-                                     ordered = TRUE)
-    
-    # Carregar a tabela com os nomes das colunas
-    nomes <- read_excel("Dados_Clima.xls", sheet = 3)
-    colnames(dados_filtrados)[1:9] <- nomes$Nomes
-    
-    # Gerar o gráfico da escala Likert
-    dados_grafico <- likert(as.data.frame(dados_filtrados[1:9]))
-    
-    # Paleta de cores para o gráfico
-    paleta <- brewer.pal(5, "RdBu")
-    paleta[3] <- "#DFDFDF"
-    
-    # Criar o gráfico
-    g1 <- likert.bar.plot(dados_grafico,
-                          wrap = 20,
-                          centered = TRUE,
-                          text.size = 4, 
-                          hjust = 0.5,
-                          legend = "Escala Likert",
-                          legend.position = "right",
-                          ordered = TRUE) +
-      ggtitle("Percepção Sustentabilidade Geral") +
-      labs(x = "PERGUNTAS", y = "FREQUÊNCIA (%)") +
-      scale_fill_manual(values = paleta) +
-      guides(fill = guide_legend(title = "Escala Likert")) +
-      theme_bw(base_size = 12)+
-      theme(
-        axis.text.y = element_text(size = 9),
-        panel.grid = element_blank(),
-        plot.background = element_rect(fill = "white"),
-        plot.title = element_text(hjust = 0.5)  # Centraliza o título
-      )
-    
-    ggplotly(g1) %>%
-      layout(
-        width = 800,  # Largura
-        height = 650,  # Altura
-        margin = list(l = 60, r = 80, t = 50, b = 100)  # Ajuste das margens internas
-      )
-  })
-  
+#------------------------------------------------------------------------------#  
+# Escala Likert
 
-  # Escala Likert GENERO
+output$likertPlot1 <- renderPlotly({
+    
+# Filtrando os dados com base nos inputs
+dados_filtrados <- Dados_Clima %>%
+filter(MUNICIPIO == input$municipio)
+    
+# Garantir que as colunas estão no formato de fator com níveis adequados
+dados_filtrados[, 1:9] <- lapply(dados_filtrados[, 1:9], 
+                                 factor, 
+                                 levels = 1:3,
+                                 labels = c("Sim", 
+                                            "Não", 
+                                            "Não Sei Informar"),
+                                 ordered = TRUE)
+    
+# Carregar a tabela com os nomes das colunas
+nomes <- read_excel("Dados_Clima.xls", sheet = 3)
+colnames(dados_filtrados)[1:9] <- nomes$Nomes
+    
+# Gerar o gráfico da escala Likert
+dados_grafico <- likert(as.data.frame(dados_filtrados[1:9]))
+    
+# Paleta de cores para o gráfico
+paleta <- brewer.pal(n=5, "RdBu")
+paleta[3] <- "lightblue"
+    
+# Criar o Gráfico Likert
+g1 <- likert.bar.plot(dados_grafico,
+                      plot.percent.low = TRUE, 
+                      plot.percent.high = TRUE, 
+                      plot.percent.neutral = TRUE,
+                      strip = TRUE,
+                      strip.left = TRUE,
+                      ReferenceZero = 3,
+                      wrap = 25,
+                      centered = TRUE,
+                      text.size = 4, 
+                      hjust = 0.5,
+                      legend = "Escala Likert",
+                      legend.position = "right", # top 
+                      auto.key = list(columns = 1, reverse.rows = TRUE),
+                      ordered = TRUE) +
+  labs(x = "", y = "FREQUÊNCIA (%)") +
+  scale_fill_manual(values = paleta) +
+  guides(fill = guide_legend(title = "Escala Likert")) +
+  theme_bw(base_size = 11) +
+  theme(
+    axis.text.y = element_text(size = 11),
+    axis.text.x = element_text(size = 11),
+    panel.grid = element_blank(),
+    plot.background = element_rect(fill = "white"),
+    plot.title = element_text(hjust = 0.5)  # Centraliza o título
+    )
+# Obter as dimensões da janela do navegador
+largura <- session$clientData$output_likertPlot1_width
+altura <- session$clientData$output_likertPlot1_height
+
+ggplotly(g1) %>%
+  layout(
+    width = ifelse(is.null(largura), 800, largura),   # Largura dinâmica
+    height = ifelse(is.null(altura), 750, altura),    # Altura dinâmica
+    margin = list(l = 60, r = 80, t = 50, b = 100)   # Ajuste das margens internas
+  )
+
+  })
+#------------------------------------------------------------------------------#
+
+
+#------------------------------------------------------------------------------#
+# Escala Likert GENERO
   
   output$likertPlot2 <- renderPlotly({
     
@@ -615,27 +633,29 @@ server <- function(input, output, session) {
     )
     
     # Paleta de Cores
-    paleta <- brewer.pal(5, "RdBu")
-    paleta[3] <- "#DFDFDF"
-    
+    paleta <- brewer.pal(n=5, "RdBu")
+    paleta[3] <- "lightblue"
     
     # Gráfico Likert
     g2 <- likert.bar.plot(dados_grafico2,
+                          wrap = 60,
+                          ReferenceZero = 3,
                           centered = TRUE,
-                          text.size = 3, 
+                          text.size = 4, 
                           hjust = 1,
                           legend = "Escala Likert",
                           legend.position = "right",
                           ordered = TRUE) +
-      ggtitle("Percepção Sustentabilidade por Gênero") +
-      labs(x = "GÊNERO", 
+      ggtitle("") +
+      labs(x = "", 
            y = "FREQUÊNCIA (%)") +
       scale_fill_manual(values = paleta, 
                         breaks = levels(Dados_Clima$Q9)) +
       guides(fill = guide_legend(title = "Escala Likert")) +
-      theme_bw()+
+      theme_bw(base_size = 11)+
       theme(
-        axis.text.y = element_text(size = 7),
+        axis.text.y = element_text(size = 11),
+        axis.text.x = element_text(size = 11),
         panel.grid = element_blank(),
         plot.background = element_rect(fill = "white"),
         plot.title = element_text(hjust = 0.5)  # Centers the title
@@ -647,10 +667,38 @@ server <- function(input, output, session) {
   
   
   dados_cidades <- data.frame(
-    municipio = c("Altamira", "Marabá", "Castanhal"),
-    latitude = c(-3.1999, -5.3802, -1.2961),
-    longitude = c(-52.2097, -49.1251, -47.9223)
+    municipio = c("Altamira", 
+                  "Marabá", 
+                  "Castanhal", 
+                  "Belém"),
+    latitude = c(-3.1999, 
+                 -5.3802, 
+                 -1.2961,
+                 -1.4558),
+  longitude = c(-52.2097, 
+                -49.1251, 
+                -47.9223,
+                -48.4902
+                )
   )
+
+
+  
+  # Coordenadas da rodovia (hipotéticas)
+  rodovia_coords <- data.frame(
+    latitude = c(-3.1999, 
+                 -5.3802, 
+                 -1.2961,
+                 -1.4558),
+    longitude = c(-52.2097, 
+                  -49.1251, 
+                  -47.9223,
+                  -48.4902
+    )
+  )
+  
+  
+  
   
   output$mapa_municipios <- renderLeaflet({
     
@@ -659,26 +707,23 @@ server <- function(input, output, session) {
       addTiles(options = leafletOptions(minZoom = 2, maxZoom = 16)) %>%
       addProviderTiles(providers$Esri.NatGeoWorldMap, options = providerTileOptions(noWrap = TRUE)) %>%
       addCircleMarkers(lng = ~longitude, 
-                       lat = ~latitude,     # Coordenadas dos municípios
-                       radius = 8, color = "blue", 
-                       popup = ~municipio)  # Exibe o nome do município ao clicar
-  
-    
-    # Adicionar rota entre as cidades (Polylines)
-    mapa <- mapa %>%
+                       lat = ~latitude,     
+                       radius = 8, 
+                       color = "blue", 
+                       popup = ~municipio)   %>%
+      # Adicionar a rota da rodovia
       addPolylines(
-        lng = c(dados_cidades$long[1], dados_cidades$long[2], dados_cidades$long[3]), 
-        lat = c(dados_cidades$lat[1], dados_cidades$lat[2], dados_cidades$lat[3]),
-        color = "blue",
-        weight = 3,
-        opacity = 0.7
+        data = rodovia_coords,
+        lng = ~longitude,
+        lat = ~latitude,
+        color = "red",
+        weight = 4,
+        opacity = 1.2,
+        popup = "Rodovia"
       )
-  
     
-    
-    
-   
-    
+
+
     })
 
 
