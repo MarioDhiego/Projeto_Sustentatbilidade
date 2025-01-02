@@ -241,12 +241,6 @@ ui <- dashboardPage(
           )
         )
       )
-      
-      
-      
-      
-      
-      
     )
   )
 )
