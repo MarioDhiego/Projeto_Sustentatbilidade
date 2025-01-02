@@ -69,19 +69,59 @@ ui <- dashboardPage(
     titleWidth = 390,
     tags$li(
       class = "dropdown",
-      a(href = "https://www.facebook.com/detranPARA", class = "fa fa-facebook", target = "_blank")
+      style = "margin-right: 15px; display: inline-block;",  
+    a(href = "https://www.facebook.com/detranPARA", 
+      class = "fa fa-facebook fa-lg", 
+      target = "_blank", 
+      title = "Facebook", 
+      style = "color: #3b5998; transition: color 0.3s;"),
+    tags$style(HTML("
+      .fa-facebook:hover {
+        color: #8b9dc3;
+      }
+    "))
     ),
     tags$li(
       class = "dropdown",
-      a(href = "https://www.instagram.com/detranpa_", class = "fa fa-instagram", target = "_blank")
+      style = "margin-right: 15px; display: inline-block;", 
+      a(href = "https://www.instagram.com/detranpa_", 
+        class = "fa fa-instagram", 
+        target = "_blank", 
+        title = "InstaGram",
+        style = "color: #e1306c; transition: color 0.3s;"),
+      tags$style(HTML("
+      .fa-instagram:hover {
+        color: #fd1d1d;
+      }
+    "))
     ),
     tags$li(
       class = "dropdown",
-      a(href = "https://twitter.com/DETRAN_PA", class = "fa fa-twitter", target = "_blank")
+      style = "margin-right: 15px; display: inline-block;", 
+      a(href = "https://twitter.com/DETRAN_PA", 
+        class = "fa fa-twitter", 
+        target = "_blank", 
+        title = "Twitter",
+        style = "color: #1da1f2; transition: color 0.3s;"),
+      tags$style(HTML("
+      .fa-twitter:hover {
+        color: #0d95e8;
+      }
+    "))
     ),
     tags$li(
       class = "dropdown",
-      a(href = "https://github.com/MarioDhiego", icon("github"), "Suporte", target = "_blank")
+      style = "margin-right: 15px; display: inline-block;", 
+      a(href = "https://github.com/MarioDhiego", 
+        icon("github"), "Suporte", 
+        target = "_blank", 
+        title = "Suporte",
+        style = "color: #333; transition: color 0.3s;"),
+      tags$style(HTML("
+      .fa-github:hover {
+        color: #6e6e6e;
+      }
+    "))
     )
   ),
   dashboardSidebar(
