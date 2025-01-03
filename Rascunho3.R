@@ -30,6 +30,9 @@ library(DT)
 library(openrouteservice)
 library(osmdata)
 library(httr2)
+library(glue)
+library(rjson)
+library(googleway)
 # ======================================================================================================#
 
 # Função para criar gráficos dinâmicos reutilizáveis
@@ -635,51 +638,96 @@ g2 <- likert.bar.plot(dados_grafico2,wrap = 60,ReferenceZero = 3,centered = TRUE
     ggplotly(g2)
   })
  
-# Renderiza o mapa interativo
-dados_cidades <- data.frame(
-    municipio = c("Altamira", "Marabá", "Castanhal", "Belém"),
-    latitude = c(-3.1999, 
-                 -5.3802, 
-                 -1.2961,
-                 -1.4558),
-  longitude = c(-52.2097, 
-                -49.1251, 
-                -47.9223,
-                -48.4902
-                ))
-
-  # Coordenadas da rodovia (hipotéticas)
-  rodovia_coords <- data.frame(
-    latitude = c(-3.1999, 
-                 -5.3802, 
-                 -1.2961,
-                 -1.4558),
-    longitude = c(-52.2097, 
-                  -49.1251, 
-                  -47.9223,
-                  -48.4902))
+#------------------------------------------------------------------------------#
+# Mapa de Geolocalização  
   
-output$mapa_municipios <- renderLeaflet({
+  output$mapa_municipios <- renderLeaflet({
+  # Definindo os endereços de origem, intermediário, destino e o novo ponto
+  endereco_origem <- "Duque de Caxias 85, Altamira, PA, Brazil"
+  endereco_destino <- "Av. Barao do Rio Branco 1287, Castanhal, PA, Brazil"
+  endereco_intermediario <- "Av. Cuiaba, 890, Santarem, PA, Brazil"
+  endereco_novo <- "Av Augusto Montenegro km 3, Belem, PA, Brazil"
+  endereco_velho <- "Av. Benjamin Constant, 285, Cameta, PA, Brazil"
+  
+  # Geocodificando os endereços
+  origem <- tidygeocoder::geo(address = endereco_origem)
+  destino <- tidygeocoder::geo(address = endereco_destino)
+  intermediario <- tidygeocoder::geo(address = endereco_intermediario)
+  novo_ponto <- tidygeocoder::geo(address = endereco_novo)
+  velho_ponto <- tidygeocoder::geo(address = endereco_velho)
+  
+  # Criando a tabela com as coordenadas de todos os pontos
+  tab <- dplyr::bind_rows(origem, 
+                          intermediario, 
+                          destino, 
+                          novo_ponto, 
+                          velho_ponto)
+  
+  # Função para fazer geocodificação reversa e obter o nome da cidade usando Nominatim (OpenStreetMap)
+  get_city_name <- function(lat, long) {
+    url <- paste0("https://nominatim.openstreetmap.org/reverse?lat=", 
+                  lat, "&lon=", 
+                  long, "&format=json")
+    response <- httr::GET(url)
+    content <- httr::content(response, "parsed")
+    city_name <- content$address$city
+    return(city_name)
+  }
+  
+  # Plotando os endereços no mapa com os quatro pontos
+  leaflet_map <- tab |>
+    leaflet::leaflet() |>
+    leaflet::addTiles() |>
+    leaflet::addMarkers(
+      lng = tab$long,
+      lat = tab$lat,
+      popup = c("Origem", "Intermediário", "Novo Ponto", "Destino", "Velho Ponto")
+    )
+  
+  # Adicionando funcionalidade de clique no mapa para exibir o nome da cidade
+  leaflet_map |>
+    leaflet::addPopups(
+      lng = tab$long,
+      lat = tab$lat,
+      popup = ~paste("Cidade:", sapply(1:nrow(tab), function(i) get_city_name(tab$lat[i], tab$long[i]))),
+      options = popupOptions(closeButton = TRUE)
+    ) |>
+    leaflet::addControl(
+      position = "bottomleft",
+      html = "Clique no mapa para ver o nome da cidade."
+    )
+  
+  # Criando a URL para calcular a rota com o novo ponto
+  url <- glue::glue(
+    "http://router.project-osrm.org/route/v1/driving/{origem$long},{origem$lat};{intermediario$long},{intermediario$lat};{novo_ponto$long},{novo_ponto$lat};{destino$long},{destino$lat}"
+  )
+  
+  # Obtendo a rota com o novo ponto
+  rota <- rjson::fromJSON(file = url)
+  
+  # Decodificando a geometria da rota
+  tab_rota <- googleway::decode_pl(rota$routes[[1]]$geometry)
+  
+  # Plotando a rota no mapa com os pontos
+  tab_rota |>
+    leaflet::leaflet() |>
+    leaflet::addTiles() |>
+    leaflet::addPolylines(
+      lng = ~lon,
+      lat = ~lat
+    ) |>
+    leaflet::addMarkers(
+      data = tab,
+      lng = tab$long,
+      lat = tab$lat,
+      popup = c("ALTAMIRA", "SANTARÉM", "CASTANHAL", "BELÉM", "CAMETÁ")  # Pop-up
+    )
+  
+  
+  
+
     
-    # Criar o mapa com base nas coordenadas das cidades
-    mapa <- leaflet(dados_cidades) %>%
-      addTiles(options = leafletOptions(minZoom = 2, maxZoom = 16)) %>%
-      addProviderTiles(providers$Esri.NatGeoWorldMap, options = providerTileOptions(noWrap = TRUE)) %>%
-      addCircleMarkers(lng = ~longitude, 
-                       lat = ~latitude,     
-                       radius = 8, 
-                       color = "blue", 
-                       popup = ~municipio)   %>%
-      # Adicionar a rota da rodovia
-      addPolylines(
-        data = rodovia_coords,
-        lng = ~longitude,
-        lat = ~latitude,
-        color = "red",
-        weight = 4,
-        opacity = 1.2,
-        popup = "Rodovia"
-      )})
+    })
 }
 
 # ======================================================================================================#
