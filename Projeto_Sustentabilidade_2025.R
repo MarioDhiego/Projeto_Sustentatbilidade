@@ -63,7 +63,11 @@ ui <- dashboardPage(
     title = "Projeto Sustentabilidade Ambiental",
     titleWidth = 390,
     tags$li(class = "dropdown",style = "margin-right: 15px; display: inline-block;",  
-a(href = "https://www.facebook.com/detranPARA", class = "fa fa-facebook fa-lg", target = "_blank", title = "Facebook", style = "color: #3b5998; transition: color 0.3s;"),
+a(href = "https://www.facebook.com/detranPARA", 
+  class = "fa fa-facebook fa-lg", 
+  target = "_blank", 
+  title = "Facebook", 
+  style = "color: #3b5998; transition: color 0.3s;"),
     tags$style(HTML(".fa-facebook:hover {color: #8b9dc3;}"))),
     tags$li(class = "dropdown",style = "margin-right: 15px; display: inline-block;", 
   a(href = "https://www.instagram.com/detranpa_", class = "fa fa-instagram", target = "_blank", title = "InstaGram",style = "color: #e1306c; transition: color 0.3s;"),
@@ -76,7 +80,6 @@ a(href = "https://www.facebook.com/detranPARA", class = "fa fa-facebook fa-lg", 
       tags$style(HTML(".fa-github:hover {color: #6e6e6e;}")))
 
 ),
-
   dashboardSidebar(minified = FALSE,collapsed = FALSE,tags$img(src = "detran1.jpeg",width = 230,height = 150),
     sidebarMenu(
       menuItem("PROJETO", 
@@ -86,7 +89,10 @@ a(href = "https://www.facebook.com/detranPARA", class = "fa fa-facebook fa-lg", 
       menuItem("CIRETRAN'S",
                tabName = "catCiretran", icon = icon("book"),
                menuSubItem("TIPO A", tabName = "tipoA", icon = icon("book")),
-               menuSubItem("TIPO B", tabName = "tipoB", icon = icon("book"))),
+               menuSubItem("TIPO B", tabName = "tipoB", icon = icon("book")),
+               menuSubItem("HOMOLOGADAS", tabName = "tipoC", icon = icon("book")),
+               menuSubItem("POSTO DE ATENDIMENTO", tabName = "tipoD", icon = icon("book"))
+               ),
       
       menuItem("PALESTRAS",
                tabName = "palestra", icon = icon("book"),
@@ -123,6 +129,7 @@ a(href = "https://www.facebook.com/detranPARA", class = "fa fa-facebook fa-lg", 
                      collapsible = TRUE,
                      headerBorder = TRUE,
                      div(
+                       style = "text-align: center;",
                        class = "elemente",
                        DiagrammeROutput("ciretrantipoA")
                      )
@@ -151,7 +158,45 @@ a(href = "https://www.facebook.com/detranPARA", class = "fa fa-facebook fa-lg", 
                  )
         )
       ),
-      
+      tabItem(
+        tabName = "tipoC",
+        tabPanel("TIPOS DE CIRETRAN'S", icon = icon("address-card"), fluidRow(
+          box(
+            width = 12,
+            title = "CIRETRAN HOMOLOGADAS",
+            style = "text-align: center",
+            status = "success",
+            solidHeader = TRUE,
+            collapsible = TRUE,
+            headerBorder = TRUE,
+            div(
+              style = "text-align: center;",
+              class = "elemente",
+              DiagrammeROutput("ciretrantipoC")
+            )
+          )
+        ))
+      ),
+      tabItem(
+        tabName = "tipoD",
+        tabPanel("TIPOS DE CIRETRAN'S", icon = icon("address-card"), fluidRow(
+          box(
+            width = 12,
+            title = "POSTO DE ATENDIMENTO",
+            style = "text-align: center",
+            status = "success",
+            solidHeader = TRUE,
+            collapsible = TRUE,
+            headerBorder = TRUE,
+            div(
+              style = "text-align: center;",
+              class = "elemente",
+              DiagrammeROutput("ciretrantipoD")
+            )
+          )
+        ))
+      ),
+
       tabItem(
         tabName = "ciretran1",
         tabBox(
@@ -326,7 +371,7 @@ a(href = "https://www.facebook.com/detranPARA", class = "fa fa-facebook fa-lg", 
                        position = "left",
                        tags$img(
                          id = "palestracastanhal1",
-                         src = "",
+                         src = "castanhal1.jpg",
                          controls = "controls",
                          width = 420, height = 450
                        ),
@@ -339,7 +384,7 @@ a(href = "https://www.facebook.com/detranPARA", class = "fa fa-facebook fa-lg", 
                        position = "left",
                        tags$img(
                          id = "palestracastanhal2",
-                         src = "",
+                         src = "castanhal2.jpg",
                          controls = "controls",
                          width = 420, height = 450
                        ),
@@ -352,7 +397,7 @@ a(href = "https://www.facebook.com/detranPARA", class = "fa fa-facebook fa-lg", 
                        position = "left",
                        tags$img(
                          id = "palestracastanhal3",
-                         src = "",
+                         src = "castanhal3.jpg",
                          controls = "controls",
                          width = 420, height = 450
                        ),
@@ -761,8 +806,6 @@ Fiscalização em nível Estadual."
           )
         )
       ), 
-      
-      
       tabItem(
         tabName = "sobre",
         fluidRow(
@@ -858,78 +901,140 @@ Fiscalização em nível Estadual."
             column(12,
                    h3("Mapa de Municípios"),
                    leafletOutput("mapa_municipios",
-                                 height = 700)  )))))))
+                                 height = 700)  ))))))
+
+,
+footer = dashboardFooter(
+  left = "COPYRIGHT© 2025 DETRAN-PA - Todos os direitos Reservados.",
+  right = "Belém - PA"
+)
+
+)
 # ======================================================================================================#
 # Servidor
 server <- function(input, output, session) {
-  
+
+#-------------------------------------------------------------------------------#
+#CIRETRAN TIPO A  
   output$ciretrantipoA <- renderDiagrammeR({
-    mermaid("
-graph TB
-A[DETRAN-PA]-->B[CIRETRAN A]
-B-->C[LEI Nº7594/2011]
-B-->D[LEI Nº432/2019]
-C-->E[SANTARÉM]
-E-->F[CASTANHAL]
-F-->G[MARABÁ]
-G-->H[ABAETETUBA]
-C-->I[ALTAMIRA]
-I-->J[CAPANEMA]
-J-->K[PARAGOMINAS]
-K-->L[TUCURUÍ]
-C-->M[REDENÇÃO]
-M-->N[ITAITUBA]
-N-->O[PARAUAPEBAS]
-O-->P[BREVES]
-D-->Q[BRAGANÇA]
-Q-->R[SÃO FÉLIX]
-",
-            width = 1000,
-            align = "center"
+    DiagrammeR::DiagrammeR(
+      "
+      graph TB
+      A[DETRAN-PA]-->B[CIRETRAN A]
+      B-->C[LEI Nº7594/2011]
+      B-->D[LEI Nº432/2019]
+      C-->E(SANTARÉM)
+      E-->F(CASTANHAL)
+      F-->G(MARABÁ)
+      G-->H(ABAETETUBA)
+      C-->I(ALTAMIRA)
+      I-->J(CAPANEMA)
+      J-->K(PARAGOMINAS)
+      K-->L(TUCURUÍ)
+      C-->M(REDENÇÃO)
+      M-->N(ITAITUBA)
+      N-->O(PARAUAPEBAS)
+      O-->P(BREVES)
+      D-->Q(BRAGANÇA)
+      Q-->R(SÃO FÉLIX DO XINGU)"
     )
   })
-  
-  output$ciretrantipoB <- renderDiagrammeR({
-    mermaid("graph TB
+#-------------------------------------------------------------------------------#
+#CIRETRAN TIPO B  
+output$ciretrantipoB <- renderDiagrammeR({
+    mermaid(
+      "graph TB
   A[LEI Nº7594/2011]-->B[DETRAN-PA]
   B-->C[CIRETRAN TIPO B]
-  C-->D[SOURE]
-  D-->E[ALENQUER]
-  E-->F[ALMEIRIM]
-  F-->G[MONTE ALEGRE]
-  G-->H[ÓBIDOS]
-  C-->I[ORIXIMINÁ]
-  I-->J[IGUARAPÉ-AÇÚ]
-  J-->K[SÃO MIGUEL]
-  K-->L[SANTA LUZIA]
-  L-->M[TOMÉ-AÇÚ]
-  C-->N[ITUPIRANGA]
-  N-->O[JACUNDÁ]
-  O-->P[RONDON]
-  P-->Q[SÃO GERALDO]
-  Q-->R[BARCARENA]
-  C-->S[IGARAPÉ-MIRI]
-  S-->T[MEDICILÂNDIA]
-  T-->U[URUARÁ]
-  U-->V[CAPITÃO POÇO]
-  V-->W[OURILÂNDIA DO NORTE]
-  C-->X[DOM ELISEU]
-  X-->Y[MÃE DO RIO]
-  Y-->Z[NOVO REPARTIMENTO]
-  Z-->A1[CONCEIÇÃO DO ARAGUAIA]
-  A1-->A2[SANTANA DO ARAGUAIA]
-  C-->A3[TUCUMÃ]
-  A3-->A4[NOVO PROGRESSO]
-  A4-->A5[CANÃA DOS CARAJÁS]
-  A5-->A6[CURIONÓPOLIS]
-  A6-->A7[RURÓPOLIS]
-   C-->A8[ANANINDEUA]
-   A8-->A9[CAMETÁ]
-   A9-->A10[VIGIA]
-   A10-->A11[SALINÓPOLIS]
-   A11-->A12[TAILÂNDIA]
-  ", width = 1000)
+  C-->D(SOURE)
+  D-->E(ALENQUER)
+  E-->F(ALMEIRIM/M.DOURADO)
+  F-->G(MONTE ALEGRE)
+  G-->H(ÓBIDOS)
+  C-->I(ORIXIMINÁ)
+  I-->J(IGUARAPÉ-AÇÚ)
+  J-->K(SÃO MIGUEL)
+  K-->L(SANTA LUZIA)
+  L-->M(TOMÉ-AÇÚ)
+  C-->N(ITUPIRANGA)
+  N-->O(JACUNDÁ)
+  O-->P(RONDON)
+  P-->Q(SÃO GERALDO)
+  Q-->R(BARCARENA)
+  C-->S(IGARAPÉ-MIRI)
+  S-->T(MEDICILÂNDIA)
+  T-->U(URUARÁ)
+  U-->V(CAPITÃO POÇO)
+  V-->W(OURILÂNDIA DO NORTE)
+  C-->X(DOM ELISEU)
+  X-->Y(MÃE DO RIO)
+  Y-->Z(NOVO REPARTIMENTO)
+  Z-->A1(CONCEIÇÃO DO ARAGUAIA)
+  A1-->A2(SANTANA DO ARAGUAIA)
+  C-->A3(TUCUMÃ)
+  A3-->A4(NOVO PROGRESSO)
+  A4-->A5(CANÃA DOS CARAJÁS)
+  A5-->A6(CURIONÓPOLIS)
+  A6-->A7(RURÓPOLIS)
+   C-->A8(ANANINDEUA)
+   A8-->A9(CAMETÁ)
+   A9-->A10(VIGIA)
+   A10-->A11(SALINÓPOLIS)
+   A11-->A12(TAILÂNDIA)
+   C--> A13(SANTA ISABEL)
+   A13--> A14(ELDORADO DOS CARAJÁS)
+  ",  width = 1000,
+      align = "center"
+    )
   })
+#-------------------------------------------------------------------------------#
+#CIRETRAN TIPO C  
+output$ciretrantipoC <- renderDiagrammeR({
+  mermaid("
+graph TD
+A[DETRAN-PA]-->B[CONADM]
+B-->C[HOMOLOGADAS]
+C-->D[2008]
+D-->E(ULIANÓPOLIS)
+C-->F[2009]
+F-->G(RURÓPOLIS)
+G-->H(MARITUBA)
+C-->I[2013]
+I-->J(SÃO DOMINGOS)
+C-->K[2019]
+K-->L(JURURTI)
+L-->M(VISEU)
+", width = 1000)
+})
+#-------------------------------------------------------------------------------#
+#-------------------------------------------------------------------------------#
+# POSTO DE ATENDIMENTO
+output$ciretrantipoD <- renderDiagrammeR({
+  mermaid("
+graph TD
+A[DETRAN-PA]-->B[POSTO DE ATENDIMENTO]
+B-->C[BELÉM]
+C-->D(SHOPPING BOULEVARD)
+D-->E(SHOPPING BOSQUE GRÃO PARÁ)
+E-->F(SHOPPING METRÓPOLE)
+F-->G(SHOPPING PÁTIO BELÉM)
+G-->H(ESTAÇÃO CIDADANIA SÃO BRÁS)
+H-->I(PARQUE SHOPPING)
+B-->J[MARABÁ]
+J-->K(SHOPPING PÁTIO MARABÁ)
+B-->L[PARAUAPEBAS]
+L-->M(SHOPPING KARAJÁS)
+B-->N[SANTARÉM]
+N-->O(TERMINAL HIDROVIÁRIO)
+", width = 1000)
+})
+#-------------------------------------------------------------------------------#
+  
+  
+  
+  
+  
+  
   
   detran_location <- data.frame(
     lat = -1.37843,
