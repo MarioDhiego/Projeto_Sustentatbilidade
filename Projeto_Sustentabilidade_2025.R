@@ -73,10 +73,11 @@ a(href = "https://www.facebook.com/detranPARA", class = "fa fa-facebook fa-lg", 
         style = "color: #1da1f2; transition: color 0.3s;"),tags$style(HTML(".fa-twitter:hover {color: #0d95e8;}"))),
     tags$li(class = "dropdown",style = "margin-right: 15px; display: inline-block;", 
       a(href = "https://github.com/MarioDhiego", icon("github"), "Suporte", target = "_blank", title = "Suporte",style = "color: #333; transition: color 0.3s;"),
-      tags$style(HTML(".fa-github:hover {color: #6e6e6e;}")))),
+      tags$style(HTML(".fa-github:hover {color: #6e6e6e;}")))
+
+),
 
   dashboardSidebar(minified = FALSE,collapsed = FALSE,tags$img(src = "detran1.jpeg",width = 230,height = 150),
-                   
     sidebarMenu(
       menuItem("PROJETO", 
                tabName = "defprojeto", icon = icon("book"),
@@ -102,7 +103,9 @@ a(href = "https://www.facebook.com/detranPARA", class = "fa fa-facebook fa-lg", 
       
       selectInput("municipio", "MUNICÍPIO:",choices = NULL, selected = NULL),
       
-      actionButton("reset_button", "Reiniciar Filtros", class = "btn-success"))),
+      actionButton("reset_button", "Reiniciar Filtros", class = "btn-success")
+      )
+    ),
   dashboardBody(
     tabItems(
       tabItem(
@@ -760,30 +763,6 @@ Fiscalização em nível Estadual."
       ), 
       
       
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
       tabItem(
         tabName = "sobre",
         fluidRow(
@@ -820,7 +799,41 @@ Fiscalização em nível Estadual."
                        ),
                        box(title = "Medidas Resumo", width = 5, status = "success", solidHeader = TRUE,collapsible = TRUE, 
                          DT::dataTableOutput("tabelaEstadoCivil") %>% 
-                           withSpinner(color = "#007bff"))))))),
+                           withSpinner(color = "#007bff")))),
+            tabPanel("CNH",
+                     fluidRow(
+                       box(title = "Distribuição por CNH", width = 7, status = "success", solidHeader = TRUE,collapsible = TRUE, 
+                           plotlyOutput("cnhPlot") %>% 
+                             withSpinner(color = "#007bff")
+                       ),
+                       box(title = "Medidas Resumo", width = 5, status = "success", solidHeader = TRUE,collapsible = TRUE, 
+                           DT::dataTableOutput("tabelacnh") %>% 
+                             withSpinner(color = "#007bff")))),
+            
+            tabPanel("MEIO_TRANSPORTE",
+                     fluidRow(
+                       box(title = "Distribuição por Meio de Transporte", width = 7, status = "success", solidHeader = TRUE,collapsible = TRUE, 
+                           plotlyOutput("transportePlot") %>% 
+                             withSpinner(color = "#007bff")
+                       ),
+                       box(title = "Medidas Resumo", width = 5, status = "success", solidHeader = TRUE,collapsible = TRUE, 
+                           DT::dataTableOutput("tabelatransporte") %>% 
+                             withSpinner(color = "#007bff")))),
+            tabPanel("CARGO_FUNCAO",
+                     fluidRow(
+                       box(title = "Distribuição por Cargo", width = 7, status = "success", solidHeader = TRUE,collapsible = TRUE, 
+                           plotlyOutput("cargoPlot") %>% 
+                             withSpinner(color = "#007bff")
+                       ),
+                       box(title = "Medidas Resumo", width = 5, status = "success", solidHeader = TRUE,collapsible = TRUE, 
+                           DT::dataTableOutput("tabelacargo") %>% 
+                             withSpinner(color = "#007bff"))))
+            
+            
+            
+            )
+        )
+        ),
       tabItem(
         tabName = "likertgeral",
         tabPanel("Escala Likert Geral",
@@ -947,30 +960,9 @@ Q-->R[SÃO FÉLIX]
       )
   })
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  Dados_Clima <- readxl::read_excel("Dados_Clima.xls")
-  
+Dados_Clima <- readxl::read_excel("Dados_Clima.xls")
+Dados_geral <- readxl::read_excel("BANCO_PROJETO_SUSTENTABILIDADE.xls")
+
 # Carregar os dados
   data <- reactive({
     req(file.exists("BANCO_PROJETO_SUSTENTABILIDADE.xls"))
@@ -994,6 +986,9 @@ Q-->R[SÃO FÉLIX]
     if (!"SEXO" %in% colnames(dados)) {
       showNotification("A coluna 'SEXO' não foi encontrada nos dados.", type = "error")}})
   
+  
+  
+#------------------------------------------------------------------------------#  
 # Gráficos de Gênero
   output$sexoPlot <- renderPlotly({
     req(nrow(filtered_data()) > 0)
@@ -1004,43 +999,56 @@ Q-->R[SÃO FÉLIX]
     titulo <- paste("Distribuição por Gênero em", municipio_selecionado)
     ggplotly(gerar_grafico(filtered_data(), "SEXO", "SEXO", titulo, order = "asc"))
   })
-  
-# Tabela de Gênero com a média de IDADE e total
+
+  # Tabela de Gênero com média de IDADE, total e percentual
   output$tabelaGenero <- DT::renderDataTable({
     req(nrow(filtered_data()) > 0)
     
-# Verificar se as colunas SEXO e IDADE estão presentes
     dados <- filtered_data()
-    if (!"SEXO" %in% colnames(dados) | !"IDADE" %in% colnames(dados)) {
-      return(NULL)  }
-# Contar o total por gênero e calcular a média de idade
+    
+    # Verificar se as colunas SEXO e IDADE estão presentes
+    if (!all(c("SEXO", "IDADE") %in% colnames(dados))) {
+      return(NULL)
+    }
+    
+    # Calcular a média geral de idade antes para otimização
+    media_idade_geral <- round(mean(dados$IDADE, na.rm = TRUE), 1)
+    
+    # Contar o total por gênero e calcular a média de idade
     genero_count <- dados %>%
       group_by(SEXO) %>%
       summarise(
         Total = n(),
-        Media_Idade = round(mean(IDADE, na.rm = TRUE), 1)) %>%
+        Media_Idade = round(mean(IDADE, na.rm = TRUE), 1)  # Arredondando para 1 casa decimal
+      ) %>%
+      mutate(Percentual = round((Total / sum(Total)) * 100, 1)) %>%  # Adiciona o percentual
       rename("Gênero" = SEXO)
     
-# Adicionar a linha de total
+    # Adicionar a linha de total
     total_row <- tibble(
       "Gênero" = "Total",
       "Total" = sum(genero_count$Total),
-      "Media_Idade" = round(mean(dados$IDADE, na.rm = TRUE), 1))
+      "Media_Idade" = media_idade_geral,
+      "Percentual" = 100  # O total sempre será 100%
+    )
     
-# Unir a linha de total com o resto da tabela
+    # Unir a linha de total com o resto da tabela
     genero_count <- bind_rows(genero_count, total_row)
     
-# Verificar se o resultado da contagem é vazio
-    if (nrow(genero_count) == 0) {
-      return(NULL)}
-    
-DT::datatable(
-  genero_count,
-  options = list(pageLength = 10),
-  rownames = FALSE )
-})
+    DT::datatable(
+      genero_count,
+      options = list(pageLength = 10),
+      rownames = FALSE
+    )
+  })
   
-# Gráfico de Raça
+
+
+#------------------------------------------------------------------------------#
+  
+
+#------------------------------------------------------------------------------#
+# Gráfico de Raca
   output$racaPlot <- renderPlotly({
     req(nrow(filtered_data()) > 0)
     req("RACA" %in% colnames(filtered_data()))  # Verificar se a coluna RACA está presente
@@ -1050,40 +1058,54 @@ DT::datatable(
     titulo <- paste("Distribuição por Raça em", municipio_selecionado)
     ggplotly(gerar_grafico(filtered_data(), "RACA", "RACA", titulo, order = "asc"))
   })
-# Tabela de Raça com a média de IDADE e total
+
+# Tabela de Raça com média de IDADE, total e percentual
   output$tabelaRaca <- DT::renderDataTable({
     req(nrow(filtered_data()) > 0)
     
-# Verificar se as colunas RACA e IDADE estão presentes
     dados <- filtered_data()
-    if (!"RACA" %in% colnames(dados) | !"IDADE" %in% colnames(dados)) {
-      return(NULL)}
+    
+# Verificar se as colunas RACA e IDADE estão presentes
+    if (!all(c("RACA", "IDADE") %in% colnames(dados))) {
+      return(NULL)
+    }
+    
+# Calcular a média geral de idade antes para otimização
+    media_idade_geral <- round(mean(dados$IDADE, na.rm = TRUE), 1)
     
 # Contar o total por raça e calcular a média de idade
     raca_count <- dados %>%
       group_by(RACA) %>%
       summarise(
         Total = n(),
-        Media_Idade = round(mean(IDADE, na.rm = TRUE), 1) ) %>%
+        Media_Idade = round(mean(IDADE, na.rm = TRUE), 1)  # Arredondando para 1 casa decimal
+      ) %>%
+      mutate(Percentual = round((Total / sum(Total)) * 100, 1)) %>%  # Adiciona o percentual
       rename("Raça" = RACA)
     
 # Adicionar a linha de total
     total_row <- tibble(
       "Raça" = "Total",
       "Total" = sum(raca_count$Total),
-      "Media_Idade" = round(mean(dados$IDADE, na.rm = TRUE), 1)  # Média de idade total arredondada
+      "Media_Idade" = media_idade_geral,
+      "Percentual" = 100  # O total sempre será 100%
     )
+    
 # Unir a linha de total com o resto da tabela
     raca_count <- bind_rows(raca_count, total_row)
-# Verificar se o resultado da contagem é vazio
-    if (nrow(raca_count) == 0) {
-      return(NULL)}
     
-DT::datatable(
+    DT::datatable(
       raca_count,
       options = list(pageLength = 10),
-      rownames = FALSE )
+      rownames = FALSE
+    )
   })
+#------------------------------------------------------------------------------#
+ 
+  
+  
+   
+#------------------------------------------------------------------------------#  
 # Gráfico de Escolaridade
   output$escolaridadePlot <- renderPlotly({
     req(nrow(filtered_data()) > 0)
@@ -1095,26 +1117,31 @@ DT::datatable(
     ggplotly(gerar_grafico(filtered_data(), "ESCOLARIDADE", "ESCOLARIDADE", titulo, order = "asc"))
   })
   
-  # Tabela de Escolaridade com a média de IDADE e total
-  
+  # Tabela de Escolaridade com média de IDADE, total e percentual
   output$tabelaEscolaridade <- DT::renderDataTable({
     req(nrow(filtered_data()) > 0)
     
-    # Verificar se as colunas ESCOLARIDADE e IDADE estão presentes
     dados <- filtered_data()
-    if (!"ESCOLARIDADE" %in% colnames(dados) | !"IDADE" %in% colnames(dados)) {
-      return(NULL)  
+    
+    # Verificar se as colunas ESCOLARIDADE e IDADE estão presentes
+    if (!all(c("ESCOLARIDADE", "IDADE") %in% colnames(dados))) {
+      return(NULL)
     }
-# Contar o total por escolaridade e calcular a média de idade
+    
+    # Calcular a média geral de idade antes para otimização
+    media_idade_geral <- round(mean(dados$IDADE, na.rm = TRUE), 1)
+    
+    # Contar o total por escolaridade e calcular a média de idade
     escolaridade_count <- dados %>%
       group_by(ESCOLARIDADE) %>%
       summarise(
         Total = n(),
-        Media_Idade = round(mean(IDADE, na.rm = TRUE), 1)  # Arredondando a média de idade para 1 casa decimal
+        Media_Idade = round(mean(IDADE, na.rm = TRUE), 1)  # Arredondando para 1 casa decimal
       ) %>%
+      mutate(Percentual = round((Total / sum(Total)) * 100, 1)) %>%  # Adiciona o percentual
       rename("Escolaridade" = ESCOLARIDADE)
     
-# Substituições nos valores da coluna "Escolaridade"
+    # Substituições nos valores da coluna "Escolaridade"
     escolaridade_count <- escolaridade_count %>%
       mutate(Escolaridade = case_when(
         Escolaridade == "EFI" ~ "Ensino Fundamental Incompleto",
@@ -1123,22 +1150,19 @@ DT::datatable(
         Escolaridade == "ESC" ~ "Ensino Superior Completo",
         Escolaridade == "ESI" ~ "Ensino Superior Incompleto",
         Escolaridade == "PÓS" ~ "Pós-Graduação",
-        TRUE ~ Escolaridade  # Mantém o valor original para outros casos
+        TRUE ~ Escolaridade
       ))
     
-# Adicionar a linha de total
+    # Adicionar a linha de total
     total_row <- tibble(
       "Escolaridade" = "Total",
       "Total" = sum(escolaridade_count$Total),
-      "Media_Idade" = round(mean(dados$IDADE, na.rm = TRUE), 1)  
+      "Media_Idade" = media_idade_geral,
+      "Percentual" = 100  # O total sempre será 100%
     )
-# Unir a linha de total com o resto da tabela
+    
+    # Unir a linha de total com o resto da tabela
     escolaridade_count <- bind_rows(escolaridade_count, total_row)
-
-    # Verificar se o resultado da contagem é vazio
-    if (nrow(escolaridade_count) == 0) {
-      return(NULL)  # Retorna NULL se a contagem não gerar resultados
-    }
     
     DT::datatable(
       escolaridade_count,
@@ -1146,6 +1170,10 @@ DT::datatable(
       rownames = FALSE
     )
   })
+#------------------------------------------------------------------------------#  
+  
+  
+  
   
 #------------------------------------------------------------------------------#
 # Gráfico de Estado Civil
@@ -1160,39 +1188,40 @@ DT::datatable(
     ggplotly(gerar_grafico(filtered_data(), "ESTADO_CIVIL", "ESTADO_CIVIL", titulo, order = "asc"))
   })
   
-  # Tabela de Estado Civil com a média de IDADE e total
+  # Tabela de Estado Civil com média de IDADE, total e percentual
   output$tabelaEstadoCivil <- DT::renderDataTable({
     req(nrow(filtered_data()) > 0)
     
-    # Verificar se as colunas ESTADO_CIVIL e IDADE estão presentes
     dados <- filtered_data()
-    if (!"ESTADO_CIVIL" %in% colnames(dados) | !"IDADE" %in% colnames(dados)) {
-      return(NULL)  # Retorna NULL se as colunas ESTADO_CIVIL ou IDADE não estiverem presentes
+    
+    # Verificar se as colunas ESTADO_CIVIL e IDADE estão presentes
+    if (!all(c("ESTADO_CIVIL", "IDADE") %in% colnames(dados))) {
+      return(NULL)
     }
+    
+    # Calcular a média geral de idade antes para otimização
+    media_idade_geral <- round(mean(dados$IDADE, na.rm = TRUE), 1)
     
     # Contar o total por estado civil e calcular a média de idade
     estado_civil_count <- dados %>%
       group_by(ESTADO_CIVIL) %>%
       summarise(
         Total = n(),
-        Media_Idade = round(mean(IDADE, na.rm = TRUE), 1)  # Arredondando a média de idade para 1 casa decimal
+        Media_Idade = round(mean(IDADE, na.rm = TRUE), 1)  # Arredondando para 1 casa decimal
       ) %>%
+      mutate(Percentual = round((Total / sum(Total)) * 100, 1)) %>%  # Adiciona o percentual
       rename("Estado Civil" = ESTADO_CIVIL)
     
     # Adicionar a linha de total
     total_row <- tibble(
       "Estado Civil" = "Total",
       "Total" = sum(estado_civil_count$Total),
-      "Media_Idade" = round(mean(dados$IDADE, na.rm = TRUE), 1)  # Média de idade total arredondada
+      "Media_Idade" = media_idade_geral,
+      "Percentual" = 100  # O total sempre será 100%
     )
     
     # Unir a linha de total com o resto da tabela
     estado_civil_count <- bind_rows(estado_civil_count, total_row)
-    
-    # Verificar se o resultado da contagem é vazio
-    if (nrow(estado_civil_count) == 0) {
-      return(NULL)  # Retorna NULL se a contagem não gerar resultados
-    }
     
     DT::datatable(
       estado_civil_count,
@@ -1201,6 +1230,210 @@ DT::datatable(
     )
   })
   
+
+#------------------------------------------------------------------------------#
+  
+  
+
+#------------------------------------------------------------------------------#  
+  # Gráfico de CNH
+  output$cnhPlot <- renderPlotly({
+    req(nrow(filtered_data()) > 0)
+    req("CNH" %in% colnames(filtered_data()))  # Verificar se a coluna ESTADO_CIVIL está presente
+    municipio_selecionado <- input$municipio  # Pega o nome do município selecionado
+    
+    # Modificar o título para incluir o nome do município
+    titulo <- paste("Município de ", municipio_selecionado)
+    
+    ggplotly(gerar_grafico(filtered_data(), "CNH", "CNH", titulo, order = "asc"))
+  })
+  
+  # Tabela de CNH com média de IDADE, total e percentual
+  output$tabelacnh <- DT::renderDataTable({
+    req(nrow(filtered_data()) > 0)
+    
+    dados <- filtered_data()
+    
+    # Verificar se as colunas necessárias estão presentes
+    if (!all(c("CNH", "IDADE") %in% colnames(dados))) {
+      return(NULL)
+    }
+    
+    # Calcular a média geral de idade antes para otimização
+    media_idade_geral <- round(mean(dados$IDADE, na.rm = TRUE), 1)
+    
+    # Contar o total por CNH e calcular a média de idade
+    cnh_count <- dados %>%
+      group_by(CNH) %>%
+      summarise(
+        Total = n(),
+        Media_Idade = round(mean(IDADE, na.rm = TRUE), 1)  
+      ) %>%
+      mutate(Percentual = round((Total / sum(Total)) * 100, 1))  
+    
+    # Adicionar a linha de total
+    total_row <- tibble(
+      CNH = "Total",
+      Percentual = 100,  # O total sempre será 100%
+      Total = sum(cnh_count$Total),
+      Media_Idade = media_idade_geral
+    )
+    
+    # Unir a linha de total com o resto da tabela
+    cnh_count <- bind_rows(cnh_count, total_row)
+    
+    DT::datatable(
+      cnh_count,
+      options = list(pageLength = 10),
+      rownames = FALSE
+    )
+  })
+  
+  
+  
+  
+#------------------------------------------------------------------------------#
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+#------------------------------------------------------------------------------# 
+  # Gráfico de Transporte
+  output$transportePlot <- renderPlotly({
+    req(nrow(filtered_data()) > 0)
+    req("MEIO_TRANSPORTE" %in% colnames(filtered_data()))  # Verificar se a coluna ESTADO_CIVIL está presente
+    municipio_selecionado <- input$municipio  # Pega o nome do município selecionado
+    
+    # Modificar o título para incluir o nome do município
+    titulo <- paste("Município de ", municipio_selecionado)
+    
+    ggplotly(gerar_grafico(filtered_data(), "MEIO_TRANSPORTE", "MEIO_TRANSPORTE", titulo, order = "asc"))
+  })
+  
+  # Tabela de Meio de Transporte com média de IDADE, total e percentual
+  output$tabelatransporte <- DT::renderDataTable({
+    req(nrow(filtered_data()) > 0)
+    
+    dados <- filtered_data()
+    
+    # Verificar se as colunas necessárias estão presentes
+    if (!all(c("MEIO_TRANSPORTE", "IDADE") %in% colnames(dados))) {
+      return(NULL)
+    }
+    
+    # Calcular a média geral de idade antes para otimização
+    media_idade_geral <- round(mean(dados$IDADE, na.rm = TRUE), 1)
+    
+    # Contar o total por meio de transporte e calcular a média de idade
+    transporte_count <- dados %>%
+      group_by(MEIO_TRANSPORTE) %>%
+      summarise(
+        Total = n(),
+        Media_Idade = round(mean(IDADE, na.rm = TRUE), 1)  # Arredondando para 1 casa decimal
+      ) %>%
+      mutate(Percentual = round((Total / sum(Total)) * 100, 1))  # Adiciona o percentual
+    
+    # Adicionar a linha de total
+    total_row <- tibble(
+      MEIO_TRANSPORTE = "Total",
+      Total = sum(transporte_count$Total),
+      Media_Idade = media_idade_geral,
+      Percentual = 100  # O total sempre será 100%
+    )
+    
+    # Unir a linha de total com o resto da tabela
+    transporte_count <- bind_rows(transporte_count, total_row)
+    
+    DT::datatable(
+      transporte_count,
+      options = list(pageLength = 10),
+      rownames = FALSE
+    )
+  })
+  
+#------------------------------------------------------------------------------#  
+  
+  
+#------------------------------------------------------------------------------# 
+# Gráfico de Cargo
+  # Gráfico de Cargo
+  output$cargoPlot <- renderPlotly({
+    req(nrow(filtered_data()) > 0)
+    req("CARGO_FUNCAO" %in% colnames(filtered_data()))  # Verifica se a coluna está presente
+    
+    municipio_selecionado <- input$municipio %||% "Não Especificado"  # Evita erro se for NULL
+    
+    # Modificar o título para incluir o nome do município
+    titulo <- paste("Município de", municipio_selecionado)
+    
+    ggplotly(gerar_grafico(filtered_data(), "CARGO_FUNCAO", "CARGO_FUNCAO", titulo, order = "asc"))
+  })
+  
+  # Tabela de Cargo com a média de IDADE, total e percentual
+  output$tabelacargo <- DT::renderDataTable({
+    req(nrow(filtered_data()) > 0)
+    dados <- filtered_data()
+    
+    # Verificar se as colunas necessárias estão presentes
+    if (!all(c("CARGO_FUNCAO", "IDADE") %in% colnames(dados))) {
+      return(NULL)
+    }
+    
+    # Calcular a média geral de idade antes para otimização
+    media_idade_geral <- round(mean(dados$IDADE, na.rm = TRUE), 1)
+    
+    # Contar o total por cargo e calcular a média de idade
+    cargo_count <- dados %>%
+      group_by(CARGO_FUNCAO) %>%
+      summarise(
+        Total = n(),
+        Media_Idade = round(mean(IDADE, na.rm = TRUE), 1)  # Arredondando para 1 casa decimal
+      ) %>%
+      mutate(Percentual = round((Total / sum(Total)) * 100, 1))  # Adiciona o percentual
+    
+    # Adicionar a linha de total
+    total_row <- tibble(
+      CARGO_FUNCAO = "Total",
+      Total = sum(cargo_count$Total),
+      Media_Idade = media_idade_geral,
+      Percentual = 100  # O total sempre será 100%
+    )
+    
+    # Unir a linha de total com o resto da tabela
+    cargo_count <- bind_rows(cargo_count, total_row)
+    
+    DT::datatable(
+      cargo_count,
+      options = list(pageLength = 10),
+      rownames = FALSE
+    )
+  })
+  
+  
+  #------------------------------------------------------------------------------#
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+#------------------------------------------------------------------------------# 
   # Botão de reset
   observeEvent(input$reset_button, {
     updateSelectInput(session, "municipio",
