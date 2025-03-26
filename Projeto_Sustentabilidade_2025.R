@@ -411,7 +411,6 @@ a(href = "https://www.facebook.com/detranPARA",
           )
         )
       ),
-      
       tabItem(
         tabName = "sobre1",
         tabBox(
@@ -600,7 +599,27 @@ a(href = "https://www.facebook.com/detranPARA",
                            "Para a coleta dos dados foi utilizado um instrumento semiestruturado composto por 21 itens que versam sobre sustentabilidade ambiental. A estrutura do questionário contém três subescalas, que medem características socioeconômicas, coleta seletiva e destino do lixo."
                          )
                        )
+                     ),
+                     column(
+                       width = 4,
+                       position = "center",
+                       tags$br(),
+                       h1("Relatório", align = "center"),
+                       tags$br(),
+                       
+                       # Exibir o PDF dentro do app
+                       tags$iframe(
+                         src = "Report_Sustentabilidade.pdf",  # O arquivo deve estar na pasta 'www'
+                         width = "100%",
+                         height = "550px"
+                       )
                      )
+                     
+                     
+                     
+                     
+                     
+                     
                    )
           ),
           tabPanel("RECURSO COMPUTACIONAL",
@@ -697,7 +716,7 @@ a(href = "https://www.facebook.com/detranPARA",
                 tags$p(
                   style = "text-align: justify;font-si20pt",
                   strong(
-                    "Esta publicação deve ser citada como: Departamento de Trânsito do Estado do Pará (DETRAN-PA), Programa de Sustentatabilidade Ambiental Por Todo Pará, 2024 (LC/PUB.2024/1-P), Belém, 2024."
+                    "Esta publicação deve ser citada como: Departamento de Trânsito do Estado do Pará (DETRAN-PA), Programa de Sustentatabilidade Ambiental Por Todo Pará, 2025 (LC/PUB.2025/1-P), Belém, 2025."
                   )
                 ),
                 tags$br(),
@@ -739,7 +758,7 @@ a(href = "https://www.facebook.com/detranPARA",
                   tags$br(),
                   strong(
                     "O Projeto é Executado sob a Supervisão Técnica do Servidor, Assistende de Trânsito, Sr:",
-                    tags$a("CRISTOVÃO SIMÕES DA MOTA (Atropólogo)", href = "cristovao.simoes@detran.pa.gov.br")
+                    tags$a("CRISTOVÃO SIMÕES DA MOTA (Antropólogo)", href = "cristovao.simoes@detran.pa.gov.br")
                   )
                 ),
                 tags$br(),
@@ -1588,7 +1607,7 @@ Dados_geral <- readxl::read_excel("BANCO_PROJETO_SUSTENTABILIDADE.xls")
                   class = 'cell-border compact stripe hover row-border order-column dt-body-right',
                   style = 'bootstrap',
                   editable = 'cell',
-                  colnames = c('Municípios', 'Total', 'Percentual'),
+                  colnames = c('Municípios', 'Nº de Entrevistas', '%'),
                   caption = 'Tabela 1. Municípios Realizados o Projeto de Sustentabilidade.'
                   ) %>%
     DT::formatStyle(
