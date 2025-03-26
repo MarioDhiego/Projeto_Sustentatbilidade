@@ -27,6 +27,8 @@ library(DiagrammeR)
 library(rlang)
 library(forcats)
 library(DT)  
+library(webshot)
+library(kableExtra)
 library(openrouteservice)
 library(osmdata)
 library(httr2)
@@ -815,6 +817,11 @@ Fiscalização em nível Estadual."
         tabName = "analises",
         fluidRow(
           tabBox(title = "SócioEconômico", width = 12,
+                 tabPanel("Municípios",
+                          fluidRow(
+                            box(title = "Total Geral", width = 7, status = "success", solidHeader = TRUE,collapsible = TRUE, 
+                                DT::dataTableOutput("tabelamunicipio") %>% 
+                                  withSpinner(color = "#007bff")))),
             tabPanel("Gênero",
                      fluidRow(
                        box(title = "Distribuição por Gênero", width = 7, status = "success", solidHeader = TRUE,
@@ -871,7 +878,6 @@ Fiscalização em nível Estadual."
                        box(title = "Medidas Resumo", width = 5, status = "success", solidHeader = TRUE,collapsible = TRUE, 
                            DT::dataTableOutput("tabelacargo") %>% 
                              withSpinner(color = "#007bff"))))
-            
             
             
             )
@@ -1105,7 +1111,6 @@ Dados_geral <- readxl::read_excel("BANCO_PROJETO_SUSTENTABILIDADE.xls")
     ggplotly(gerar_grafico(filtered_data(), "SEXO", "SEXO", titulo, order = "asc"))
   })
 
-  # Tabela de Gênero com média de IDADE, total e percentual
   output$tabelaGenero <- DT::renderDataTable({
     req(nrow(filtered_data()) > 0)
     
@@ -1116,39 +1121,45 @@ Dados_geral <- readxl::read_excel("BANCO_PROJETO_SUSTENTABILIDADE.xls")
       return(NULL)
     }
     
-    # Calcular a média geral de idade antes para otimização
-    media_idade_geral <- round(mean(dados$IDADE, na.rm = TRUE), 1)
+    # Verificar se a coluna IDADE não está totalmente vazia
+    if (all(is.na(dados$IDADE))) {
+      media_idade_geral <- NA
+    } else {
+      media_idade_geral <- round(mean(dados$IDADE, na.rm = TRUE), 2)
+    }
     
     # Contar o total por gênero e calcular a média de idade
     genero_count <- dados %>%
       group_by(SEXO) %>%
       summarise(
         Total = n(),
-        Media_Idade = round(mean(IDADE, na.rm = TRUE), 1)  # Arredondando para 1 casa decimal
+        Media_Idade = round(mean(IDADE, na.rm = TRUE), 1)
       ) %>%
-      mutate(Percentual = round((Total / sum(Total)) * 100, 1)) %>%  # Adiciona o percentual
+      mutate(Percentual = round((Total / sum(Total)) * 100, 1)) %>%
       rename("Gênero" = SEXO)
     
-    # Adicionar a linha de total
-    total_row <- tibble(
+    # Adicionar linha de total
+    genero_count <- bind_rows(genero_count, tibble(
       "Gênero" = "Total",
       "Total" = sum(genero_count$Total),
       "Media_Idade" = media_idade_geral,
-      "Percentual" = 100  # O total sempre será 100%
-    )
+      "Percentual" = 100
+    ))
     
-    # Unir a linha de total com o resto da tabela
-    genero_count <- bind_rows(genero_count, total_row)
-    
+    # Criar a tabela com estilo para destacar a linha total
     DT::datatable(
       genero_count,
       options = list(pageLength = 10),
       rownames = FALSE
-    )
+    ) %>%
+      DT::formatStyle(
+        'Gênero',
+        target = 'row',
+        backgroundColor = DT::styleEqual("Total", "lightgrey"),
+        fontWeight = DT::styleEqual("Total", "bold")
+      )
   })
   
-
-
 #------------------------------------------------------------------------------#
   
 
@@ -1164,47 +1175,55 @@ Dados_geral <- readxl::read_excel("BANCO_PROJETO_SUSTENTABILIDADE.xls")
     ggplotly(gerar_grafico(filtered_data(), "RACA", "RACA", titulo, order = "asc"))
   })
 
-# Tabela de Raça com média de IDADE, total e percentual
   output$tabelaRaca <- DT::renderDataTable({
     req(nrow(filtered_data()) > 0)
     
     dados <- filtered_data()
     
-# Verificar se as colunas RACA e IDADE estão presentes
+    # Verificar se as colunas RACA e IDADE estão presentes
     if (!all(c("RACA", "IDADE") %in% colnames(dados))) {
       return(NULL)
     }
     
-# Calcular a média geral de idade antes para otimização
-    media_idade_geral <- round(mean(dados$IDADE, na.rm = TRUE), 1)
+    # Verificar se a coluna IDADE não está totalmente vazia
+    if (all(is.na(dados$IDADE))) {
+      media_idade_geral <- NA
+    } else {
+      media_idade_geral <- round(mean(dados$IDADE, na.rm = TRUE), 1)
+    }
     
-# Contar o total por raça e calcular a média de idade
+    # Contar o total por raça e calcular a média de idade
     raca_count <- dados %>%
       group_by(RACA) %>%
       summarise(
         Total = n(),
-        Media_Idade = round(mean(IDADE, na.rm = TRUE), 1)  # Arredondando para 1 casa decimal
+        Media_Idade = round(mean(IDADE, na.rm = TRUE), 1)
       ) %>%
-      mutate(Percentual = round((Total / sum(Total)) * 100, 1)) %>%  # Adiciona o percentual
+      mutate(Percentual = round((Total / sum(Total)) * 100, 1)) %>%
       rename("Raça" = RACA)
     
-# Adicionar a linha de total
-    total_row <- tibble(
+    # Adicionar linha de total
+    raca_count <- bind_rows(raca_count, tibble(
       "Raça" = "Total",
       "Total" = sum(raca_count$Total),
       "Media_Idade" = media_idade_geral,
-      "Percentual" = 100  # O total sempre será 100%
-    )
+      "Percentual" = 100
+    ))
     
-# Unir a linha de total com o resto da tabela
-    raca_count <- bind_rows(raca_count, total_row)
-    
+    # Criar a tabela com estilo para destacar a linha total
     DT::datatable(
       raca_count,
       options = list(pageLength = 10),
       rownames = FALSE
-    )
+    ) %>%
+      DT::formatStyle(
+        'Raça',
+        target = 'row',
+        backgroundColor = DT::styleEqual("Total", "lightgrey"),
+        fontWeight = DT::styleEqual("Total", "bold")
+      )
   })
+  
 #------------------------------------------------------------------------------#
  
   
@@ -1221,33 +1240,28 @@ Dados_geral <- readxl::read_excel("BANCO_PROJETO_SUSTENTABILIDADE.xls")
     titulo <- paste("Distribuição por Escolaridade em", municipio_selecionado)
     ggplotly(gerar_grafico(filtered_data(), "ESCOLARIDADE", "ESCOLARIDADE", titulo, order = "asc"))
   })
-  
-  # Tabela de Escolaridade com média de IDADE, total e percentual
+
+# Tabela de Escolaridade x Media
   output$tabelaEscolaridade <- DT::renderDataTable({
-    req(nrow(filtered_data()) > 0)
+    req(filtered_data(), nrow(filtered_data()) > 0)
     
     dados <- filtered_data()
     
-    # Verificar se as colunas ESCOLARIDADE e IDADE estão presentes
     if (!all(c("ESCOLARIDADE", "IDADE") %in% colnames(dados))) {
       return(NULL)
     }
     
-    # Calcular a média geral de idade antes para otimização
     media_idade_geral <- round(mean(dados$IDADE, na.rm = TRUE), 1)
     
-    # Contar o total por escolaridade e calcular a média de idade
     escolaridade_count <- dados %>%
       group_by(ESCOLARIDADE) %>%
       summarise(
         Total = n(),
-        Media_Idade = round(mean(IDADE, na.rm = TRUE), 1)  # Arredondando para 1 casa decimal
+        Media_Idade = round(mean(IDADE, na.rm = TRUE), 1),
+        .groups = "drop"  # Evita mensagens de agrupamento
       ) %>%
-      mutate(Percentual = round((Total / sum(Total)) * 100, 1)) %>%  # Adiciona o percentual
-      rename("Escolaridade" = ESCOLARIDADE)
-    
-    # Substituições nos valores da coluna "Escolaridade"
-    escolaridade_count <- escolaridade_count %>%
+      mutate(Percentual = round((Total / sum(Total)) * 100, 1)) %>%
+      rename("Escolaridade" = ESCOLARIDADE) %>%
       mutate(Escolaridade = case_when(
         Escolaridade == "EFI" ~ "Ensino Fundamental Incompleto",
         Escolaridade == "EMI" ~ "Ensino Médio Incompleto",
@@ -1258,22 +1272,26 @@ Dados_geral <- readxl::read_excel("BANCO_PROJETO_SUSTENTABILIDADE.xls")
         TRUE ~ Escolaridade
       ))
     
-    # Adicionar a linha de total
     total_row <- tibble(
       "Escolaridade" = "Total",
       "Total" = sum(escolaridade_count$Total),
       "Media_Idade" = media_idade_geral,
-      "Percentual" = 100  # O total sempre será 100%
+      "Percentual" = 100
     )
     
-    # Unir a linha de total com o resto da tabela
     escolaridade_count <- bind_rows(escolaridade_count, total_row)
     
     DT::datatable(
       escolaridade_count,
       options = list(pageLength = 10),
       rownames = FALSE
-    )
+    ) %>%
+      DT::formatStyle(
+        "Escolaridade",
+        target = "row",
+        backgroundColor = DT::styleEqual("Total", "lightgray"),
+        fontWeight = DT::styleEqual("Total", "bold")
+      )
   })
 #------------------------------------------------------------------------------#  
   
@@ -1332,7 +1350,13 @@ Dados_geral <- readxl::read_excel("BANCO_PROJETO_SUSTENTABILIDADE.xls")
       estado_civil_count,
       options = list(pageLength = 10),
       rownames = FALSE
-    )
+    ) %>%
+      DT::formatStyle(
+        "Estado Civil",
+        target = "row",
+        backgroundColor = DT::styleEqual("Total", "lightgray"),
+        fontWeight = DT::styleEqual("Total", "bold")
+      )
   })
   
 
@@ -1391,20 +1415,15 @@ Dados_geral <- readxl::read_excel("BANCO_PROJETO_SUSTENTABILIDADE.xls")
       cnh_count,
       options = list(pageLength = 10),
       rownames = FALSE
-    )
+    ) %>%
+      DT::formatStyle(
+        "CNH",
+        target = "row",
+        backgroundColor = DT::styleEqual("Total", "lightgray"),
+        fontWeight = DT::styleEqual("Total", "bold")
+      )
   })
-  
-  
-  
-  
 #------------------------------------------------------------------------------#
-  
-  
-  
-  
-  
-  
-  
   
   
   
@@ -1421,7 +1440,8 @@ Dados_geral <- readxl::read_excel("BANCO_PROJETO_SUSTENTABILIDADE.xls")
     ggplotly(gerar_grafico(filtered_data(), "MEIO_TRANSPORTE", "MEIO_TRANSPORTE", titulo, order = "asc"))
   })
   
-  # Tabela de Meio de Transporte com média de IDADE, total e percentual
+
+# Tabela de Meio de Transporte com média de IDADE, total e percentual
   output$tabelatransporte <- DT::renderDataTable({
     req(nrow(filtered_data()) > 0)
     
@@ -1459,7 +1479,13 @@ Dados_geral <- readxl::read_excel("BANCO_PROJETO_SUSTENTABILIDADE.xls")
       transporte_count,
       options = list(pageLength = 10),
       rownames = FALSE
-    )
+    ) %>%
+      DT::formatStyle(
+        "MEIO_TRANSPORTE",
+        target = "row",
+        backgroundColor = DT::styleEqual("Total", "lightgray"),
+        fontWeight = DT::styleEqual("Total", "bold")
+      )
   })
   
 #------------------------------------------------------------------------------#  
@@ -1480,52 +1506,98 @@ Dados_geral <- readxl::read_excel("BANCO_PROJETO_SUSTENTABILIDADE.xls")
     ggplotly(gerar_grafico(filtered_data(), "CARGO_FUNCAO", "CARGO_FUNCAO", titulo, order = "asc"))
   })
   
-  # Tabela de Cargo com a média de IDADE, total e percentual
   output$tabelacargo <- DT::renderDataTable({
     req(nrow(filtered_data()) > 0)
     dados <- filtered_data()
     
     # Verificar se as colunas necessárias estão presentes
     if (!all(c("CARGO_FUNCAO", "IDADE") %in% colnames(dados))) {
-      return(NULL)
+      return(DT::datatable(data.frame(Mensagem = "Colunas necessárias não estão presentes.")))
     }
     
-    # Calcular a média geral de idade antes para otimização
+    # Calcular a média geral de idade
     media_idade_geral <- round(mean(dados$IDADE, na.rm = TRUE), 1)
     
-    # Contar o total por cargo e calcular a média de idade
+    # Calcular total por cargo, média de idade e percentual
     cargo_count <- dados %>%
       group_by(CARGO_FUNCAO) %>%
       summarise(
         Total = n(),
-        Media_Idade = round(mean(IDADE, na.rm = TRUE), 1)  # Arredondando para 1 casa decimal
+        Media_Idade = round(mean(IDADE, na.rm = TRUE), 1)
       ) %>%
-      mutate(Percentual = round((Total / sum(Total)) * 100, 1))  # Adiciona o percentual
+      ungroup() %>%
+      mutate(Percentual = round((Total / sum(Total)) * 100, 1))
     
-    # Adicionar a linha de total
-    total_row <- tibble(
-      CARGO_FUNCAO = "Total",
-      Total = sum(cargo_count$Total),
-      Media_Idade = media_idade_geral,
-      Percentual = 100  # O total sempre será 100%
-    )
+    # Adicionar linha de total diretamente
+    cargo_count <- cargo_count %>%
+      add_row(
+        CARGO_FUNCAO = "Total",
+        Total = sum(cargo_count$Total),
+        Media_Idade = media_idade_geral,
+        Percentual = 100
+      )
     
-    # Unir a linha de total com o resto da tabela
-    cargo_count <- bind_rows(cargo_count, total_row)
-    
+    # Criar tabela DT
     DT::datatable(
       cargo_count,
       options = list(pageLength = 10),
       rownames = FALSE
+    ) %>%
+    DT::formatStyle(
+      "CARGO_FUNCAO",
+      target = "row",
+      backgroundColor = DT::styleEqual("Total", "lightgray"),
+      fontWeight = DT::styleEqual("Total", "bold")
     )
   })
   
-  
-  #------------------------------------------------------------------------------#
-  
-  
-  
-  
+#------------------------------------------------------------------------------#
+# Tabela Municipios
+  output$tabelamunicipio <- renderDT({
+    
+    # Calcular o total e o percentual por município
+    tabela_municipio <- Dados_geral %>%
+      group_by(MUNICIPIO) %>%
+      summarise(
+        Total = n(),
+        Percentual = round((n() / nrow(Dados_geral)) * 100, 2)
+      ) %>%
+      arrange(desc(Total))
+    
+    # Adicionar uma linha para o total geral
+    total_geral <- tibble(
+      MUNICIPIO = "Total Geral",
+      Total = sum(tabela_municipio$Total),
+      Percentual = 100
+    )
+    
+    # Combinar os dados e adicionar a linha do total geral
+    tabela_completa <- bind_rows(tabela_municipio, total_geral)
+    
+    # Renderizar a tabela interativa e aplicar o estilo
+    DT::datatable(tabela_completa, 
+                  filter = "top", 
+                  plugins = 'natural',
+                  extensions = 'Buttons',
+                  options=list(dom = 'Blfrtip',buttons = c('copy','csv','excel','pdf','print'),
+                               engthMenu = list(c(5,50,100,250,-1)), c(5,50,100,250,"All"),
+                               pageLength = 10, 
+                               autoWidth = TRUE,
+                               scrollX = TRUE),
+                  rownames = FALSE,
+                  class = 'cell-border compact stripe hover row-border order-column dt-body-right',
+                  style = 'bootstrap',
+                  editable = 'cell',
+                  colnames = c('Municípios', 'Total', 'Percentual'),
+                  caption = 'Tabela 1. Municípios Realizados o Projeto de Sustentabilidade.'
+                  ) %>%
+    DT::formatStyle(
+        "MUNICIPIO",
+        target = "row",
+        backgroundColor = DT::styleEqual("Total Geral", "lightgray"),
+        fontWeight = DT::styleEqual("Total Geral", "bold")
+      )
+  })
   
   
   
